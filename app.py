@@ -35,7 +35,7 @@ def register():
         cursor = connection.cursor()
         cursor.execute('SELECT user_id FROM users WHERE username=?', (username,))    # Check if username already exists
         user = cursor.fetchone()
-        
+
         if user is not None:
             # the username already exists, showcases error
             flash('This username is already taken, choose another')
@@ -79,8 +79,9 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.pop('user_id', None)
-    return redirect('/')
+    # terminates session
+    session.pop('user_id', None)  
+    return redirect(url_for("home"))
 
 
 if __name__ == "__main__":
