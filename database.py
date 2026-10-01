@@ -19,14 +19,25 @@ def init_db():
     connection.commit()
     connection.close()
 
+# Populates subjects with options based on subjects.json
 def set_subjects():
+    # Loads data from subject.json
     with open("data/subjects.json", "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    subjects = data["subjects"]
+    subjects = data["subjects"] # access to subject dicts
 
-    for subject in subjects: 
-        print(subject)
+    # Start connection to db
+    connection = get_db()
+
+    # Each subject based on the json is added to db
+    for subject in subjects:
+        connection.execute("INSERT OR IGNORE INTO subjects (subject_name, level, total_topics) VALUES (?,?,?)", 
+                           (subject["subject_name"], subject["level"], subject["total_topics"]))
+        # IGNORE avoids error from UNIQUE (constraint within the database creation)
+
+    connection.commit()
+    connection.close()
 
 if __name__ == "__main__":
     init_db()
