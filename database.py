@@ -1,3 +1,5 @@
+"""Main Data Layer"""
+
 import sqlite3
 
 # provides access to the database
