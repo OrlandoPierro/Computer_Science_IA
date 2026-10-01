@@ -1,6 +1,7 @@
 """Main Data Layer"""
 
 import sqlite3
+import json
 
 # provides access to the database
 def get_db():
@@ -18,5 +19,15 @@ def init_db():
     connection.commit()
     connection.close()
 
+def set_subjects():
+    with open("data/subjects.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    subjects = data["subjects"]
+
+    for subject in subjects: 
+        print(subject)
+
 if __name__ == "__main__":
     init_db()
+    set_subjects()

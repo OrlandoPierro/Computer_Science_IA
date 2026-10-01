@@ -1,0 +1,327 @@
+{
+  "metadata": {
+    "description": "Two sample IB Diploma Programme subjects from each of Groups 1-6, with both SL and HL variants where applicable.",
+    "generated_on": "2026-10-01",
+    "counting_method": "total_topics counts the highest-level prescribed syllabus units, themes, or areas of exploration. IB terminology varies by subject.",
+    "database_note": "For the current subjects table, insert subject_name, level, and total_topics. group, topics, and source are reference metadata."
+  },
+  "subjects": [
+    {
+      "group": 1,
+      "subject_name": "English A: Literature",
+      "level": "SL",
+      "total_topics": 3,
+      "topics": [
+        "Readers, writers and texts",
+        "Time and space",
+        "Intertextuality: connecting texts"
+      ],
+      "source": "https://ibo.org/programmes/diploma-programme/curriculum/language-and-literature/language-a-literature/"
+    },
+    {
+      "group": 1,
+      "subject_name": "English A: Literature",
+      "level": "HL",
+      "total_topics": 3,
+      "topics": [
+        "Readers, writers and texts",
+        "Time and space",
+        "Intertextuality: connecting texts"
+      ],
+      "source": "https://ibo.org/programmes/diploma-programme/curriculum/language-and-literature/language-a-literature/"
+    },
+    {
+      "group": 1,
+      "subject_name": "English A: Language and Literature",
+      "level": "SL",
+      "total_topics": 3,
+      "topics": [
+        "Readers, writers and texts",
+        "Time and space",
+        "Intertextuality: connecting texts"
+      ],
+      "source": "https://ibo.org/programmes/diploma-programme/curriculum/language-and-literature/language-a-language-and-literature/"
+    },
+    {
+      "group": 1,
+      "subject_name": "English A: Language and Literature",
+      "level": "HL",
+      "total_topics": 3,
+      "topics": [
+        "Readers, writers and texts",
+        "Time and space",
+        "Intertextuality: connecting texts"
+      ],
+      "source": "https://ibo.org/programmes/diploma-programme/curriculum/language-and-literature/language-a-language-and-literature/"
+    },
+    {
+      "group": 2,
+      "subject_name": "French B",
+      "level": "SL",
+      "total_topics": 5,
+      "topics": [
+        "Identities",
+        "Experiences",
+        "Human ingenuity",
+        "Social organization",
+        "Sharing the planet"
+      ],
+      "source": "https://ibo.org/programmes/diploma-programme/curriculum/language-acquisition/language-b/"
+    },
+    {
+      "group": 2,
+      "subject_name": "French B",
+      "level": "HL",
+      "total_topics": 5,
+      "topics": [
+        "Identities",
+        "Experiences",
+        "Human ingenuity",
+        "Social organization",
+        "Sharing the planet"
+      ],
+      "source": "https://ibo.org/programmes/diploma-programme/curriculum/language-acquisition/language-b/"
+    },
+    {
+      "group": 2,
+      "subject_name": "Spanish B",
+      "level": "SL",
+      "total_topics": 5,
+      "topics": [
+        "Identities",
+        "Experiences",
+        "Human ingenuity",
+        "Social organization",
+        "Sharing the planet"
+      ],
+      "source": "https://ibo.org/programmes/diploma-programme/curriculum/language-acquisition/language-b/"
+    },
+    {
+      "group": 2,
+      "subject_name": "Spanish B",
+      "level": "HL",
+      "total_topics": 5,
+      "topics": [
+        "Identities",
+        "Experiences",
+        "Human ingenuity",
+        "Social organization",
+        "Sharing the planet"
+      ],
+      "source": "https://ibo.org/programmes/diploma-programme/curriculum/language-acquisition/language-b/"
+    },
+    {
+      "group": 3,
+      "subject_name": "Economics",
+      "level": "SL",
+      "total_topics": 4,
+      "topics": [
+        "Introduction to economics",
+        "Microeconomics",
+        "Macroeconomics",
+        "The global economy"
+      ],
+      "source": "https://ibo.org/globalassets/new-structure/research/pdfs/ib-dp-country-studies---spain-alignment-report.pdf"
+    },
+    {
+      "group": 3,
+      "subject_name": "Economics",
+      "level": "HL",
+      "total_topics": 4,
+      "topics": [
+        "Introduction to economics",
+        "Microeconomics",
+        "Macroeconomics",
+        "The global economy"
+      ],
+      "source": "https://ibo.org/globalassets/new-structure/research/pdfs/ib-dp-country-studies---spain-alignment-report.pdf"
+    },
+    {
+      "group": 3,
+      "subject_name": "Business Management",
+      "level": "SL",
+      "total_topics": 5,
+      "topics": [
+        "Business organization and environment",
+        "Human resource management",
+        "Finance and accounts",
+        "Marketing",
+        "Operations management"
+      ],
+      "source": "https://ibo.org/programmes/diploma-programme/curriculum/individuals-and-societies/business-and-management/"
+    },
+    {
+      "group": 3,
+      "subject_name": "Business Management",
+      "level": "HL",
+      "total_topics": 5,
+      "topics": [
+        "Business organization and environment",
+        "Human resource management",
+        "Finance and accounts",
+        "Marketing",
+        "Operations management"
+      ],
+      "source": "https://ibo.org/programmes/diploma-programme/curriculum/individuals-and-societies/business-and-management/"
+    },
+    {
+      "group": 4,
+      "subject_name": "Physics",
+      "level": "SL",
+      "total_topics": 5,
+      "topics": [
+        "Space, time and motion",
+        "The particulate nature of matter",
+        "Wave behaviour",
+        "Fields",
+        "Nuclear and quantum physics"
+      ],
+      "source": "https://www.ibo.org/globalassets/new-structure/recognition/pdfs/dp_sciences_physics_subject-brief_jan_2022_e.pdf"
+    },
+    {
+      "group": 4,
+      "subject_name": "Physics",
+      "level": "HL",
+      "total_topics": 5,
+      "topics": [
+        "Space, time and motion",
+        "The particulate nature of matter",
+        "Wave behaviour",
+        "Fields",
+        "Nuclear and quantum physics"
+      ],
+      "source": "https://www.ibo.org/globalassets/new-structure/recognition/pdfs/dp_sciences_physics_subject-brief_jan_2022_e.pdf"
+    },
+    {
+      "group": 4,
+      "subject_name": "Biology",
+      "level": "SL",
+      "total_topics": 4,
+      "topics": [
+        "Unity and diversity",
+        "Form and function",
+        "Interaction and interdependence",
+        "Continuity and change"
+      ],
+      "source": "https://ibo.org/globalassets/new-structure/research/pdfs/biology-subject-report.pdf"
+    },
+    {
+      "group": 4,
+      "subject_name": "Biology",
+      "level": "HL",
+      "total_topics": 4,
+      "topics": [
+        "Unity and diversity",
+        "Form and function",
+        "Interaction and interdependence",
+        "Continuity and change"
+      ],
+      "source": "https://ibo.org/globalassets/new-structure/research/pdfs/biology-subject-report.pdf"
+    },
+    {
+      "group": 5,
+      "subject_name": "Mathematics: Analysis and Approaches",
+      "level": "SL",
+      "total_topics": 5,
+      "topics": [
+        "Number and algebra",
+        "Functions",
+        "Geometry and trigonometry",
+        "Statistics and probability",
+        "Calculus"
+      ],
+      "source": "https://ibo.org/programmes/diploma-programme/curriculum/mathematics/"
+    },
+    {
+      "group": 5,
+      "subject_name": "Mathematics: Analysis and Approaches",
+      "level": "HL",
+      "total_topics": 5,
+      "topics": [
+        "Number and algebra",
+        "Functions",
+        "Geometry and trigonometry",
+        "Statistics and probability",
+        "Calculus"
+      ],
+      "source": "https://ibo.org/programmes/diploma-programme/curriculum/mathematics/"
+    },
+    {
+      "group": 5,
+      "subject_name": "Mathematics: Applications and Interpretation",
+      "level": "SL",
+      "total_topics": 5,
+      "topics": [
+        "Number and algebra",
+        "Functions",
+        "Geometry and trigonometry",
+        "Statistics and probability",
+        "Calculus"
+      ],
+      "source": "https://www.ibo.org/globalassets/new-structure/university-admission/pdfs/dp-mathematics-applications-and-interpretation-guide-en.pdf"
+    },
+    {
+      "group": 5,
+      "subject_name": "Mathematics: Applications and Interpretation",
+      "level": "HL",
+      "total_topics": 5,
+      "topics": [
+        "Number and algebra",
+        "Functions",
+        "Geometry and trigonometry",
+        "Statistics and probability",
+        "Calculus"
+      ],
+      "source": "https://www.ibo.org/globalassets/new-structure/university-admission/pdfs/dp-mathematics-applications-and-interpretation-guide-en.pdf"
+    },
+    {
+      "group": 6,
+      "subject_name": "Visual Arts",
+      "level": "SL",
+      "total_topics": 3,
+      "topics": [
+        "Create",
+        "Connect",
+        "Communicate"
+      ],
+      "source": "https://ibo.org/university-admission/latest-curriculum-updates/visual-arts-updates/"
+    },
+    {
+      "group": 6,
+      "subject_name": "Visual Arts",
+      "level": "HL",
+      "total_topics": 3,
+      "topics": [
+        "Create",
+        "Connect",
+        "Communicate"
+      ],
+      "source": "https://ibo.org/university-admission/latest-curriculum-updates/visual-arts-updates/"
+    },
+    {
+      "group": 6,
+      "subject_name": "Theatre",
+      "level": "SL",
+      "total_topics": 3,
+      "topics": [
+        "Staging play texts",
+        "Exploring world theatre traditions",
+        "Collaboratively creating original theatre"
+      ],
+      "source": "https://www-prod.ibo.org/university-admission/latest-curriculum-updates/theatre/"
+    },
+    {
+      "group": 6,
+      "subject_name": "Theatre",
+      "level": "HL",
+      "total_topics": 4,
+      "topics": [
+        "Staging play texts",
+        "Exploring world theatre traditions",
+        "Collaboratively creating original theatre",
+        "Performing theatre theory"
+      ],
+      "source": "https://www-prod.ibo.org/university-admission/latest-curriculum-updates/theatre/"
+    }
+  ]
+}

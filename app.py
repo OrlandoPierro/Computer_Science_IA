@@ -18,8 +18,8 @@ def home():
 def register():
     if request.method == 'POST':
         # access the submitted values
-        username = request.form.get('username').strip()
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
 
         # validates the values
         if not username or not password:
@@ -57,8 +57,8 @@ def register():
 def login():
     if request.method == 'POST':
         # access the submitted values and connects to database
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username', '')
+        password = request.form.get('password', '')
         connection = get_db()
 
         # Find user with the given entries
@@ -83,13 +83,21 @@ def logout():
     session.pop('user_id', None)  
     return redirect(url_for("login"))
 
-@app.route('/delete_account')
+@app.route('/delete_account', methods=("POST",))
 def delete():
+    # check if a user is actually logged in, otherwise redirects to login
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    # connect to db
     connection = get_db()
+
+    # deletes all user info (thanks to cascade assessments info too) based on session's user_id
     connection.execute("DELETE FROM users WHERE user_id=?", (session["user_id"],))
     connection.commit()
     connection.close()
-    logout()
+
+    return logout() # clears session and redirects to login
 
 
 if __name__ == "__main__":
