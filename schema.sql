@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS user_subjects(user_subject_id INTEGER PRIMARY KEY,
                                          target_grade INTEGER NOT NULL
                                          CHECK(target_grade BETWEEN 1 AND 7),
                                          
-                                         FOREIGN KEY (user_id) REFERENCES users(user_id),
+                                         FOREIGN KEY (user_id) REFERENCES users(user_id)
+                                         ON DELETE CASCADE,
                                          FOREIGN KEY (subject_id) REFERENCES subjects(subject_id));
                                          
 CREATE TABLE IF NOT EXISTS assessments(assessment_id INTEGER PRIMARY KEY,
@@ -34,7 +35,8 @@ CREATE TABLE IF NOT EXISTS assessments(assessment_id INTEGER PRIMARY KEY,
                                        CHECK(topics_covered_count >= 0),
                                        
                                        CHECK(score <= maximum_score),
-                                       FOREIGN KEY (user_subject_id) REFERENCES user_subjects(user_subject_id));
+                                       FOREIGN KEY (user_subject_id) REFERENCES user_subjects(user_subject_id)
+                                       ON DELETE CASCADE);
                                        
 CREATE TABLE IF NOT EXISTS grade_boundaries(boundary_id INTEGER PRIMARY KEY, 
 											subject_id INTEGER NOT NULL,
