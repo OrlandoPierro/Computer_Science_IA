@@ -81,7 +81,15 @@ def login():
 def logout():
     # terminates session
     session.pop('user_id', None)  
-    return redirect(url_for("home"))
+    return redirect(url_for("login"))
+
+@app.route('/delete_account')
+def delete():
+    connection = get_db()
+    connection.execute("DELETE FROM users WHERE user_id=?", (session["user_id"],))
+    connection.commit()
+    connection.close()
+    logout()
 
 
 if __name__ == "__main__":
