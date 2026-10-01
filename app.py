@@ -35,6 +35,7 @@ def register():
         cursor = connection.cursor()
         cursor.execute('SELECT user_id FROM users WHERE username=?', (username,))    # Check if username already exists
         user = cursor.fetchone()
+        
         if user is not None:
             # the username already exists, showcases error
             flash('This username is already taken, choose another')
@@ -49,25 +50,31 @@ def register():
         connection.commit()
         connection.close()
         return redirect(url_for("login"))   # after registration redirects to login 
+    
     return render_template('register.html')
 
 @app.route('/login', methods=('GET', 'POST'))
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        password = hashlib.sha256(password.encode('utf-8')).hexdigest()
-        connection = sqlite3.connect(db_path)
+        # access the submitted values and connects to database
+        username = request.form.get('username')
+        password = request.form.get('password')
+        connection = get_db()
+
+        # Find user with the given entries
         cursor = connection.cursor()
-        cursor.execute('SELECT id FROM users WHERE username=? AND password=?', (username, password))
+        cursor.execute('SELECT user_id, password_hash FROM users WHERE username=?', (username,))
         user = cursor.fetchone()
         connection.close()
-        if user is not None:
-            session['user_id'] = user[0]
-            session.permanent = True 
-            return redirect('/')
+
+        # Check if username retrieved a user entry and if the password entered fits with the stored hash
+        if user is not None and check_password_hash(user["password_hash"], password):
+            session['user_id'] = user["user_id"]
+            session.permanent = True    # won't terminate the session mantaining it on in the cache
+            return redirect(url_for("home"))    # redirects to home after login
         else:
-            flash('Username o password errati')
+            flash('Either username or password are wrong')  # Error if the condition above isn't satisfied
+
     return render_template('login.html')
 
 @app.route('/logout')
