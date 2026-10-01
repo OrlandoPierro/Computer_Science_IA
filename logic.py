@@ -1,5 +1,5 @@
 from math import isfinite
-import date
+from datetime import date
 
 # Validation 
 
@@ -121,3 +121,12 @@ def median(scores): # must take list of scores in percentage form
 
 
 # Prediction
+
+
+assessment_type_importance_weight = 0.5
+assessment_date = "2026-07-13"
+latest_assessment_date = "2026-10-01"
+topics_covered = 4
+total_topics = 10
+
+print(assessment_weight(assessment_type_importance_weight, assessment_date, latest_assessment_date, topics_covered, total_topics))
