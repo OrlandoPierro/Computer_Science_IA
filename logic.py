@@ -36,10 +36,8 @@ def percentage(score, maximum_score):
 
 # Converts scores to grades (1-7), based on minimum percentage in boundaries
 def score_to_grade(score, maximum_score, boundaries):
-    # Validation
-    score, maximum_score = number(score), number(maximum_score)
-
     # convert score to percentage
+    # includes validation
     score = percentage(score, maximum_score)
 
     # checks if percentage above the minimum boundary for a grade
