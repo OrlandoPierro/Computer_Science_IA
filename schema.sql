@@ -5,9 +5,11 @@ CREATE TABLE IF NOT EXISTS users(user_id INTEGER PRIMARY KEY,
 CREATE TABLE IF NOT EXISTS subjects(subject_id INTEGER PRIMARY KEY,
 									subject_name VARCHAR(50) NOT NULL,
                                     level VARCHAR(2) NOT NULL
-                                    CHECK(level IN ("HL","SL")),
+                                    CHECK(level IN ('HL','SL')),
                                     total_topics INTEGER NOT NULL
-                                    CHECK(total_topics > 0));
+                                    CHECK(total_topics > 0),
+                                    
+                                    UNIQUE(subject_name, level));
                                     
 CREATE TABLE IF NOT EXISTS user_subjects(user_subject_id INTEGER PRIMARY KEY,
 										 user_id INTEGER NOT NULL,
@@ -22,7 +24,7 @@ CREATE TABLE IF NOT EXISTS assessments(assessment_id INTEGER PRIMARY KEY,
 									   user_subject_id INTEGER NOT NULL,
                                        assessment_type VARCHAR(20) NOT NULL
                                        CHECK(assessment_type IN 
-                                       ("Learning Experience","Formative","Summative","Mock Exam","IA")),
+                                       ('Learning Experience','Formative','Summative','Mock Exam','IA')),
                                        score DECIMAL NOT NULL
                                        CHECK(score >= 0),
                                        maximum_score DECIMAL NOT NULL
@@ -39,7 +41,7 @@ CREATE TABLE IF NOT EXISTS grade_boundaries(boundary_id INTEGER PRIMARY KEY,
                                             exam_year INTEGER NOT NULL
                                             CHECK(exam_year BETWEEN 1990 AND 2026),
                                             exam_session VARCHAR(8) NOT NULL
-                                            CHECK(exam_session IN ("May", "November")),
+                                            CHECK(exam_session IN ('May', 'November')),
                                             grade INTEGER NOT NULL
                                             CHECK(grade BETWEEN 1 AND 7),
                                             lower_boundary DECIMAL NOT NULL
