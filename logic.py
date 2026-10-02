@@ -92,6 +92,31 @@ def assessment_weight(assessment_type_importance_weight,
 
     return weight
 
+# Provides an uncertainty range for estimations
+def assumed_uncertainty_range(score, maximum_score):
+    # Validation
+    if score == "N/A":
+        return "N/A"    # No score available, thus no margin
+
+    if maximum_score <= 0:
+        raise ValueError("Maximum score must be greater than 0")
+
+    if score < 0 or score > maximum_score:
+        raise ValueError("Score not in range")
+
+    # Deciding appropriate margin_rate
+    rates = {7: 0.06, 
+             42: 0.03}
+
+    # Generating appropriate margins
+    margin = rates.get(maximum_score, 0.05) * maximum_score
+    # if not in dict, then margin_rate=0.05
+
+    # Calculates range bounds
+    lower_bound = max(0, score - margin)
+    upper_bound = min(maximum_score, score + margin)
+
+    return lower_bound, upper_bound
 
 # Statistics
 
