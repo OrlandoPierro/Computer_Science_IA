@@ -57,6 +57,7 @@ def score_to_grade(score, maximum_score, boundaries):
         if score >= boundaries[grade]:
             return grade
 
+# Returns the weight given to an assessment, then used in WLR
 def assessment_weight(assessment_type_importance_weight, 
                            assessment_date, latest_assessment_date,
                            topics_covered, total_topics):
@@ -121,3 +122,54 @@ def median(scores): # must take list of scores in percentage form
 
 
 # Prediction
+
+def weighted_regression(times, score_percentages, weights):
+    # Validation
+    if (len(times) != len(score_percentages)) or (len(times) != len(weights)):
+        raise ValueError("Input lengths do not match")
+
+    if len(times) == 0:
+        raise ValueError("No assessments available")
+
+    for weight in weights:
+        if weight < 0:
+            raise ValueError("Weights cannot be negative")
+
+    total_weight = sum(weights)
+
+    if total_weight == 0:
+        raise ValueError("No positive weight")
+
+    mean_time = 0
+    mean_score_percentage = 0
+
+    # Slope and intercept calculation with closed-form solution for weighted least squares
+    for i in range(len(times)):
+        mean_time += weights[i] * times[i]
+        mean_score_percentage += weights[i] * score_percentages[i]
+
+    mean_time = mean_time / total_weight
+
+    # mean_score_percentage will be returned as used in other functions
+    mean_score_percentage = mean_score_percentage / total_weight    
+
+    numerator = 0
+    denominator = 0
+
+    for i in range(len(times)):
+        time_difference = times[i] - mean_time
+        score_percentage_difference = score_percentages[i] - mean_score_percentage
+
+        numerator += weights[i] * time_difference * score_percentage_difference
+        denominator += weights[i] * time_difference ** 2
+
+    if denominator == 0:
+        raise ValueError("Insufficient time variation to calculate a trend")
+
+    slope = numerator / denominator
+    intercept = mean_score_percentage - slope * mean_time
+
+    return slope, intercept, mean_score_percentage
+
+
+print(weighted_regression([0, 10, 20], [50, 60, 70], [1, 1, 1]))
