@@ -14,5 +14,18 @@
         {{ subject["target"] }}
     {% endfor %}
     </p>
+    <form action="{{ url_for('add_subject') }}" method="POST">
+    <select name="subject_id" required>
+        {% for subject in subjects %}
+            <option value="{{ subject['subject_id'] }}">
+                {{ subject['subject_name'] }} {{ subject['level'] }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <input type="number" name="target_grade" min="1" max="7" required>
+
+    <button type="submit">Add subject</button>
+</form>
 </body>
 </html>

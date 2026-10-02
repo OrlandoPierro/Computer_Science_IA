@@ -1,8 +1,8 @@
 from flask import Flask, render_template, redirect, request, session, flash, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from secrets import token_hex
-import sqlite3 
 
+from logic import integer
 from database import get_db
 
 app = Flask(__name__)
@@ -45,7 +45,7 @@ def home():
 
     connection.close()
 
-    return render_template('index.html', username=user["username"], user_subjects=user_subjects)
+    return render_template('index.html', username=user["username"], user_subjects=user_subjects, subjects=get_subjects())
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
@@ -107,7 +107,7 @@ def login():
             return redirect(url_for("home"))    # redirects to home after login
         else:
             flash('Either username or password are wrong')  # Error if the condition above isn't satisfied
-            
+
     return render_template('login.html')
 
 @app.route('/logout')
@@ -132,6 +132,80 @@ def delete():
 
     return logout() # clears session and redirects to login
 
+# Helper that returns all subjects
+def get_subjects():
+    connection = get_db()
+    cursor = connection.cursor()
+
+    cursor.execute("""SELECT subject_id, subject_name, level
+                      FROM subjects ORDER BY subject_name""")
+
+    subjects = cursor.fetchall()
+    connection.close()
+
+    return subjects
+
+# Allows users to add subjects to their user_subjects
+@app.route("/add_subject", methods=("POST",))
+def add_subject():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    
+    subject_id = request.form.get("subject_id", "")
+    target_grade = request.form.get("target_grade", "")
+
+    # Validation
+    try:
+        subject_id = int(subject_id)
+        target_grade = int(target_grade)
+    except ValueError:
+        flash("Invalid subject or target grade")
+        return redirect(url_for("home"))
+
+    if target_grade < 1 or target_grade > 7:
+        flash("Target grade must be between 1 and 7")
+        return redirect(url_for("home"))
+
+    connection = get_db()
+    cursor = connection.cursor()
+
+    # check if subject is in database
+    cursor.execute("SELECT subject_id FROM subjects WHERE subject_id=?", (subject_id,))
+    subject = cursor.fetchone()
+
+    if subject is None:
+        connection.close()
+        flash("Invalid subject")
+        return redirect(url_for("home"))
+
+    # check if subject was already added to user_subjects
+    cursor.execute("""SELECT FROM user_subjects 
+                      WHERE user_id=? AND subject_id=?""", (session["user_id"], subject_id))
+
+    existing_subject = cursor.fetchone()
+
+    if existing_subject is not None:
+        connection.close()
+        flash("Subject already added")
+        return redirect(url_for("home"))
+
+    # adds subject to user_subjects
+    cursor.execute(
+        """INSERT INTO user_subjects
+           (user_id, subject_id, target_grade)
+           VALUES (?, ?, ?)""", (session["user_id"], subject_id, target_grade))
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("home"))
+
+
+    
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
