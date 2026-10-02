@@ -226,6 +226,52 @@ def delete_subject():
 
     return redirect(url_for("home"))
 
+# Allows users to change their target grade
+@app.route("/update_target", methods=("POST",))
+def update_target():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    
+    user_subject_id = request.form.get("user_subject_id", "")
+    target_grade = request.form.get("target_grade", "")
+
+    # Validation
+    try:
+        user_subject_id = int(user_subject_id)
+        target_grade = int(target_grade)
+    except ValueError:
+        flash("Invalid subject or target grade")
+        return redirect(url_for("home"))
+
+    if target_grade < 1 or target_grade > 7:
+        flash("Target grade must be between 1 and 7")
+        return redirect(url_for("home"))
+
+    connection = get_db()
+    cursor = connection.cursor()
+
+    # check if the user_subjects contian the subject
+    cursor.execute("""SELECT user_subject_id FROM user_subjects 
+                      WHERE user_id=? AND user_subject_id=?""", (session["user_id"], user_subject_id))
+
+    existing_subject = cursor.fetchone()
+
+    if existing_subject is None:
+        connection.close()
+        flash("The user doesn't take this subject")
+        return redirect(url_for("home"))
+
+    # updates target grade
+    cursor.execute(
+        """UPDATE user_subjects
+           SET target_grade=?
+           WHERE user_id=? AND user_subject_id=?""", (target_grade, session["user_id"], user_subject_id))
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("home"))
+
 
 
 if __name__ == "__main__":
