@@ -12,7 +12,36 @@ app.secret_key = token_hex(32)
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return redirect(url_for("login"))
+    
+    connection = get_db()
+    cursor = connection.cursor()
+
+    cursor.execute('SELECT username FROM users WHERE user_id=?', (user_id,))
+    user = cursor.fetchone()
+
+    if user is None:
+        connection.close()
+        return logout()
+
+    command = """SELECT user_subjects.user_subject_id, 
+                        subjects.subject_name, 
+                        subjects.level, 
+                        subjects.total_topics, 
+                        user_subjects.target_grade 
+                FROM user_subjects JOIN subjects 
+                        ON user_subjects.subject_id=subjects.subject_id 
+                WHERE user_subjects.user_id=?"""
+    
+    cursor.execute(command, (user_id,))
+    user_subjects = cursor.fetchall()  
+
+    connection.close()
+
+    return render_template('index.html', username=user["username"], user_subjects=user_subjects)
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
