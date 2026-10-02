@@ -179,7 +179,7 @@ def add_subject():
         return redirect(url_for("home"))
 
     # check if subject was already added to user_subjects
-    cursor.execute("""SELECT FROM user_subjects 
+    cursor.execute("""SELECT user_subject_id FROM user_subjects 
                       WHERE user_id=? AND subject_id=?""", (session["user_id"], subject_id))
 
     existing_subject = cursor.fetchone()
