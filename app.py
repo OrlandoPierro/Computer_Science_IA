@@ -201,7 +201,30 @@ def add_subject():
     return redirect(url_for("home"))
 
 
+# Allows users to delete subjects from their user_subjects
+@app.route("/delete_subject", methods=("POST",))
+def delete_subject():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
     
+    subject_id = request.form.get("subject_id", "")
+
+    # Validation
+    try:
+        subject_id = int(subject_id)
+    except ValueError:
+        flash("Invalid subject")
+        return redirect(url_for("home"))
+
+    connection = get_db()
+
+    # delete subject from the user_subjects 
+    connection.execute("""DELETE * FROM user_subjects WHERE user_id=? AND subject_id=?""", (session["user_id"], subject_id))
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("home"))
 
 
 
