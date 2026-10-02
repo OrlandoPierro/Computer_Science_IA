@@ -6,6 +6,13 @@
 
 <body>
     <h1>Predict your PG </h1>
-    <p>working</p>
+    <p>working
+    {{ username }}
+    {% for subject in user_subjects %}
+        {{ subject["subject_name"] }}
+        {{ subject["level"] }}
+        {{ subject["target"] }}
+    {% endfor %}
+    </p>
 </body>
 </html>

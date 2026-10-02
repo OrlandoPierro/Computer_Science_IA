@@ -12,21 +12,25 @@ app.secret_key = token_hex(32)
 
 @app.route("/")
 def home():
-    user_id = session.get('user_id')
+    user_id = session.get('user_id')    # retrieves user id from session
 
     if not user_id:
         return redirect(url_for("login"))
-    
+
+    # open db
     connection = get_db()
     cursor = connection.cursor()
 
+    # finds username based on user id in db
     cursor.execute('SELECT username FROM users WHERE user_id=?', (user_id,))
     user = cursor.fetchone()
 
+    # manages non existant users
     if user is None:
         connection.close()
         return logout()
 
+    # finds user subjects info
     command = """SELECT user_subjects.user_subject_id, 
                         subjects.subject_name, 
                         subjects.level, 
@@ -103,7 +107,7 @@ def login():
             return redirect(url_for("home"))    # redirects to home after login
         else:
             flash('Either username or password are wrong')  # Error if the condition above isn't satisfied
-
+            
     return render_template('login.html')
 
 @app.route('/logout')
