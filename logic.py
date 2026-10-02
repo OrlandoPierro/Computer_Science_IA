@@ -172,13 +172,13 @@ def weighted_regression(times, score_percentages, weights):
     return slope, intercept, mean_score_percentage
 
 def estimate_predicted_grade_score_percentage(slope, intercept, prediction_time,
-                                                   mean_score_percentage):
+                                              mean_score_percentage):
 
     # weights, assigned to give more value to what has already been done
     FUTURE_WEIGHT = 0.35
     MEAN_WEIGHT = 0.65
 
-    # Input Validation
+    # Validation
     if mean_score_percentage < 0 or mean_score_percentage > 100:
         raise ValueError("Mean percentage must be between 0 and 100")
 
@@ -195,3 +195,17 @@ def estimate_predicted_grade_score_percentage(slope, intercept, prediction_time,
     )
 
     return predicted_score_percentage
+
+
+def overall_pg(subjects_predicted_scores):  # takes in list of individual PGs
+    # Validation
+    if len(subjects_predicted_scores) != 6:
+        return "N/A"    # Used instead of raising an error
+                        # Directly displays N/A to user
+
+    for predicted in subjects_predicted_scores:
+        if predicted == "N/A" or predicted == None:
+            return "N/A"
+
+    # Sum of individual predicted scores
+    return sum(subjects_predicted_scores)
