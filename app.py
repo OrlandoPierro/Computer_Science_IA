@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, request, session, flash, url
 from werkzeug.security import generate_password_hash, check_password_hash
 from secrets import token_hex
 
-from logic import integer
+from logic import integer, number, days_between, percentage
 from database import get_db
 
 app = Flask(__name__)
@@ -272,6 +272,7 @@ def update_target():
 
     return redirect(url_for("home"))
 
+# Loads all subject specific info for user
 @app.route("/subject/<int:user_subject_id>")
 def load_assessments(user_subject_id):
     if "user_id" not in session:
@@ -306,6 +307,86 @@ def load_assessments(user_subject_id):
 
     connection.close()
     return render_template("subject.html", subject=subject, assessments=assessments)
+
+@app.route("/subject/<int:user_subject_id>/add_assessment",methods=("POST",))
+def add_assessments(user_subject_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    assessment_type = request.form.get("assessment_type", "")
+    score = request.form.get("score", "")
+    maximum_score = request.form.get("maximum_score", "")
+    assessment_date = request.form.get("assessment_date", "")
+    topics_covered_count = request.form.get("topics_covered_count", "")
+
+    # open db
+    connection = get_db()
+    cursor = connection.cursor()
+
+    # retrieves specific subject info 
+    command = """SELECT user_subjects.user_subject_id,
+                        user_subjects.subject_id,
+                FROM user_subjects JOIN subjects
+                    ON user_subjects.subject_id = subjects.subject_id
+                WHERE user_subjects.user_subject_id=? AND user_subjects.user_id=?"""
+    
+    cursor.execute(command, (user_subject_id, session["user_id"]))
+    subject = cursor.fetchone() # row containing specific subject info for user
+
+    # checks if subject exists in user_subjects
+    if subject is None:
+        connection.close()
+        flash("Invalid subject")
+        return redirect(url_for("home"))
+
+    # Validation
+    allowed_types = [
+        "Learning Experience",
+        "Formative",
+        "Summative",
+        "Mock Exam",
+        "IA"
+    ]
+
+    if assessment_type not in allowed_types:
+        connection.close()
+        flash("Invalid assessment type")
+        return redirect(url_for("load_assessments", user_subject_id=user_subject_id))
+
+    try:
+        score = number(score)
+        maximum_score = number(maximum_score)
+
+        percentage(score, maximum_score)
+
+        topics_covered_count = integer(topics_covered_count)
+
+        days_between(assessment_date, assessment_date)
+
+    except ValueError as error:
+        connection.close()
+        flash(str(error))
+        return redirect(url_for("load_assessments", user_subject_id=user_subject_id))
+
+    if topics_covered_count < 0 or topics_covered_count > subject["total_topics"]:
+        connection.close()
+        flash("Invalid number of topics covered")
+        return redirect(url_for("load_assessments", user_subject_id=user_subject_id))
+
+    # add assessment 
+    command = """INSERT INTO assessments 
+                    (user_subject_id, assessment_type, 
+                    score, maximum_score, 
+                    assessment_date, topics_covered_count) 
+                VALUES (?,?,?,?,?,?)"""
+    
+    connection.execute(command, (user_subject_id, assessment_type, 
+                                 score, maximum_score, 
+                                 assessment_date, topics_covered_count))
+
+    connection.commit()
+    connection.close()
+    return redirect(url_for("load_assessments", user_subject_id=user_subject_id))
 
 
 if __name__ == "__main__":
