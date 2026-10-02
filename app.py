@@ -308,6 +308,7 @@ def load_assessments(user_subject_id):
     connection.close()
     return render_template("subject.html", subject=subject, assessments=assessments)
 
+# allows users to add an assessment for a subject
 @app.route("/subject/<int:user_subject_id>/add_assessment",methods=("POST",))
 def add_assessments(user_subject_id):
     if "user_id" not in session:
@@ -326,6 +327,7 @@ def add_assessments(user_subject_id):
     # retrieves specific subject info 
     command = """SELECT user_subjects.user_subject_id,
                         user_subjects.subject_id,
+                        subjects.total_topics
                 FROM user_subjects JOIN subjects
                     ON user_subjects.subject_id = subjects.subject_id
                 WHERE user_subjects.user_subject_id=? AND user_subjects.user_id=?"""
@@ -388,6 +390,52 @@ def add_assessments(user_subject_id):
     connection.close()
     return redirect(url_for("load_assessments", user_subject_id=user_subject_id))
 
+# allows users to delete an assessment
+@app.route("/subject/<int:user_subject_id>/delete_assessment", methods=("POST",))
+def delete_assessment(user_subject_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    assessment_id = request.form.get("assessment_id", "")
+
+    # Validation
+    try:
+        assessment_id = int(assessment_id)
+    except ValueError:
+        flash("Invalid assessment")
+        return redirect(url_for("load_assessments", user_subject_id=user_subject_id))
+
+    # open db
+    connection = get_db()
+    cursor = connection.cursor()
+
+    # checks if assessment belongs to the logged in user
+    command = """SELECT assessments.assessment_id
+                 FROM assessments JOIN user_subjects
+                    ON assessments.user_subject_id = user_subjects.user_subject_id
+                 WHERE assessments.assessment_id=?
+                    AND assessments.user_subject_id=?
+                    AND user_subjects.user_id=?"""
+
+    cursor.execute(command, (assessment_id, user_subject_id, session["user_id"]))
+
+    assessment = cursor.fetchone()
+
+    # checks if the assessment existed
+    if assessment is None:
+        connection.close()
+        flash("Invalid assessment")
+        return redirect(url_for("load_assessments", user_subject_id=user_subject_id))
+
+    # deletes assessment
+    cursor.execute("""DELETE FROM assessments
+                    WHERE assessment_id=? AND user_subject_id=?""", 
+                    (assessment_id, user_subject_id))
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("load_assessments", user_subject_id=user_subject_id))
 
 if __name__ == "__main__":
     app.run(debug=True)
