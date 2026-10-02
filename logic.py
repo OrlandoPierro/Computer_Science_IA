@@ -57,6 +57,22 @@ def score_to_grade(score, maximum_score, boundaries):
         if score >= boundaries[grade]:
             return grade
 
+# converts assessment type into its importance weight
+def assessment_type_weight(assessment_type):
+    weights = {
+        "Learning Experience": 0.05,
+        "Formative": 0.25,
+        "Summative": 0.75,
+        "Mock Exam": 1,
+        "IA": 1
+    }
+
+    # Validation
+    if assessment_type not in weights:
+        raise ValueError("Invalid assessment type")
+
+    return weights[assessment_type]
+
 # Returns the weight given to an assessment, then used in WLR
 def assessment_weight(assessment_type_importance_weight, 
                            assessment_date, latest_assessment_date,
