@@ -1,0 +1,37 @@
+{
+    "metadata": {
+        "description": "May 2025 IB grade-boundary lower thresholds for the 24 subject/level combinations used by the app.",
+        "session": "May",
+        "exam_year": 2025,
+        "timezone_policy": "TZ2 used where a TZ2 May 2025 boundary exists; TZ0 used for Visual Arts and Theatre.",
+        "primary_source": "https://ibpredict.org/",
+        "spanish_source": "https://helovesmath.com/ib-score-calculator/ib-spanish-grade-calculator/",
+        "note": "Each boundary is the minimum overall percentage required for the corresponding IB grade."
+    },
+    "grade_boundaries": [
+        {"subject_name":"English A: Literature","level":"SL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/literature","boundaries":{"1":0,"2":13,"3":26,"4":38,"5":51,"6":65,"7":78}},
+        {"subject_name":"English A: Literature","level":"HL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/literature","boundaries":{"1":0,"2":15,"3":29,"4":40,"5":54,"6":66,"7":80}},
+        {"subject_name":"English A: Language and Literature","level":"SL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/language-and-literature","boundaries":{"1":0,"2":11,"3":25,"4":38,"5":53,"6":65,"7":78}},
+        {"subject_name":"English A: Language and Literature","level":"HL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/language-and-literature","boundaries":{"1":0,"2":12,"3":25,"4":41,"5":53,"6":66,"7":79}},
+        {"subject_name":"French B","level":"SL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/language-b?lang=French","boundaries":{"1":0,"2":10,"3":21,"4":35,"5":50,"6":66,"7":80}},
+        {"subject_name":"French B","level":"HL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://helovesmath.com/homework-resources/ib-french-b-grade-calculator/","boundaries":{"1":0,"2":15,"3":29,"4":46,"5":59,"6":71,"7":83}},
+        {"subject_name":"Spanish B","level":"SL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://helovesmath.com/ib-score-calculator/ib-spanish-grade-calculator/","boundaries":{"1":0,"2":9,"3":18,"4":33,"5":49,"6":68,"7":83}},
+        {"subject_name":"Spanish B","level":"HL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://helovesmath.com/ib-score-calculator/ib-spanish-grade-calculator/","boundaries":{"1":0,"2":12,"3":25,"4":37,"5":53,"6":69,"7":84}},
+        {"subject_name":"Economics","level":"SL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/economics","boundaries":{"1":0,"2":15,"3":29,"4":40,"5":52,"6":64,"7":76}},
+        {"subject_name":"Economics","level":"HL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/economics?lvl=HL","boundaries":{"1":0,"2":14,"3":27,"4":38,"5":50,"6":63,"7":76}},
+        {"subject_name":"Business Management","level":"SL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/business-management","boundaries":{"1":0,"2":16,"3":31,"4":43,"5":55,"6":68,"7":80}},
+        {"subject_name":"Business Management","level":"HL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/business-management?lvl=HL","boundaries":{"1":0,"2":14,"3":28,"4":41,"5":52,"6":63,"7":75}},
+        {"subject_name":"Physics","level":"SL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/physics","boundaries":{"1":0,"2":11,"3":19,"4":30,"5":40,"6":51,"7":61}},
+        {"subject_name":"Physics","level":"HL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/physics?lvl=HL","boundaries":{"1":0,"2":14,"3":25,"4":36,"5":46,"6":58,"7":68}},
+        {"subject_name":"Biology","level":"SL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/biology","boundaries":{"1":0,"2":13,"3":24,"4":36,"5":48,"6":60,"7":72}},
+        {"subject_name":"Biology","level":"HL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/biology?lvl=HL","boundaries":{"1":0,"2":14,"3":25,"4":36,"5":49,"6":62,"7":74}},
+        {"subject_name":"Mathematics: Analysis and Approaches","level":"SL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/analysis-and-approaches","boundaries":{"1":0,"2":7,"3":15,"4":25,"5":39,"6":52,"7":66}},
+        {"subject_name":"Mathematics: Analysis and Approaches","level":"HL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/analysis-and-approaches?lvl=HL","boundaries":{"1":0,"2":11,"3":23,"4":32,"5":45,"6":59,"7":71}},
+        {"subject_name":"Mathematics: Applications and Interpretation","level":"SL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/applications-and-interpretation","boundaries":{"1":0,"2":9,"3":18,"4":27,"5":40,"6":53,"7":66}},
+        {"subject_name":"Mathematics: Applications and Interpretation","level":"HL","exam_year":2025,"exam_session":"May","timezone":"TZ2","source":"https://ibpredict.org/subjects/applications-and-interpretation?lvl=HL","boundaries":{"1":0,"2":12,"3":24,"4":33,"5":45,"6":56,"7":66}},
+        {"subject_name":"Visual Arts","level":"SL","exam_year":2025,"exam_session":"May","timezone":"TZ0","source":"https://ibpredict.org/subjects/visual-arts","boundaries":{"1":0,"2":11,"3":22,"4":34,"5":51,"6":65,"7":81}},
+        {"subject_name":"Visual Arts","level":"HL","exam_year":2025,"exam_session":"May","timezone":"TZ0","source":"https://ibpredict.org/subjects/visual-arts?lvl=HL","boundaries":{"1":0,"2":11,"3":22,"4":39,"5":53,"6":67,"7":81}},
+        {"subject_name":"Theatre","level":"SL","exam_year":2025,"exam_session":"May","timezone":"TZ0","source":"https://ibpredict.org/subjects/theatre","boundaries":{"1":0,"2":10,"3":20,"4":36,"5":52,"6":70,"7":86}},
+        {"subject_name":"Theatre","level":"HL","exam_year":2025,"exam_session":"May","timezone":"TZ0","source":"https://ibpredict.org/subjects/theatre?lvl=HL","boundaries":{"1":0,"2":10,"3":21,"4":37,"5":52,"6":69,"7":84}}
+    ]
+}
