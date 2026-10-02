@@ -171,5 +171,27 @@ def weighted_regression(times, score_percentages, weights):
 
     return slope, intercept, mean_score_percentage
 
+def estimate_predicted_grade_score_percentage(slope, intercept, prediction_time,
+                                                   mean_score_percentage):
 
-print(weighted_regression([0, 10, 20], [50, 60, 70], [1, 1, 1]))
+    # weights, assigned to give more value to what has already been done
+    FUTURE_WEIGHT = 0.35
+    MEAN_WEIGHT = 0.65
+
+    # Input Validation
+    if mean_score_percentage < 0 or mean_score_percentage > 100:
+        raise ValueError("Mean percentage must be between 0 and 100")
+
+    # Calculate future score percentage estimate with regressed line information
+    future_score_percentage = slope * prediction_time + intercept
+    # prediction_time is the time at which the future score is estimated
+
+    # Cap the future score estimate within percentage limits (0-100)
+    future_score_percentage = max(0, min(100, future_score_percentage))
+    
+    # Calculation of the predicted score, through weighted average
+    predicted_score_percentage = (
+    FUTURE_WEIGHT * future_score_percentage + MEAN_WEIGHT * mean_score_percentage
+    )
+
+    return predicted_score_percentage
