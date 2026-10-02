@@ -1,0 +1,11 @@
+<h1>{{ subject["subject_name"] }} {{ subject["level"] }}</h1>
+
+{% for assessment in assessments %}
+    <p>
+        {{ assessment["assessment_date"] }}
+        -
+        {{ assessment["assessment_type"] }}
+        -
+        {{ assessment["score"] }}/{{ assessment["maximum_score"] }}
+    </p>
+{% endfor %}
