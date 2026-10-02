@@ -476,3 +476,97 @@ def minimum_required_percentage(existing_assessments, proposed_assessment,
 
     # target is not reached even with 100%
     return "Target can't be reached with this assessment"
+
+
+# Analysis (returns full info breakdown directly)
+
+# *for a specific subject
+def analyse_subject(assessments, total_topics, boundaries, prediction_date):
+
+    # returns N/A values if no assessments
+    if len(assessments) == 0:
+        return {
+            "mean": "N/A",
+            "median": "N/A",
+            "predicted_percentage": "N/A",
+            "predicted_grade": "N/A",
+            "uncertainty_range": "N/A",
+            "slope": "N/A",
+            "intercept": "N/A"
+        }
+
+    score_percentages = []
+    regression_assessments = []
+    dates = []
+
+    # prepare assessment information
+    for assessment in assessments:
+        score_percentage = percentage(assessment["score"], assessment["maximum_score"])
+
+        score_percentages.append(score_percentage)
+        dates.append(assessment["assessment_date"])
+
+        regression_assessments.append({
+            "score_percentage": score_percentage,
+            "assessment_type_importance_weight": assessment_type_weight(assessment["assessment_type"]),
+            "assessment_date": assessment["assessment_date"],
+            "topics_covered": assessment["topics_covered_count"]
+        })
+
+    # calculates stats
+    subject_mean = mean(score_percentages)
+    subject_median = median(score_percentages)
+
+    reference_date = min(dates)
+    latest_assessment_date = max(dates)
+
+    # prepares values for WLR
+    times, weights, score_percentages = prepare_regression_data(
+        regression_assessments,
+        total_topics,
+        latest_assessment_date,
+        reference_date
+    )
+
+    # prediction can't be calculated without time variation
+    try:
+        slope, intercept, mean_score_percentage = weighted_regression(times, score_percentages, weights)
+    except ValueError:
+        return {
+            "mean": subject_mean,
+            "median": subject_median,
+            "predicted_percentage": "N/A",
+            "predicted_grade": "N/A",
+            "uncertainty_range": "N/A",
+            "slope": "N/A",
+            "intercept": "N/A"
+        }
+
+    prediction_time = days_between(reference_date, prediction_date)
+    
+    if prediction_time < 0:
+        raise ValueError("Prediction date is before first assessment")
+
+    # calculates predicted percentage
+    predicted_percentage = estimate_predicted_grade_score_percentage(
+        slope,
+        intercept,
+        prediction_time,
+        mean_score_percentage
+    )
+
+    # converts predicted percentage to IB grade
+    predicted_grade = score_to_grade(predicted_percentage, 100, boundaries)
+
+    # calculates uncertainty for predicted grade
+    uncertainty_range = assumed_uncertainty_range(predicted_grade, 7)
+
+    return {
+        "mean": subject_mean,
+        "median": subject_median,
+        "predicted_percentage": predicted_percentage,
+        "predicted_grade": predicted_grade,
+        "uncertainty_range": uncertainty_range,
+        "slope": slope,
+        "intercept": intercept
+    }
