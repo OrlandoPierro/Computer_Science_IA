@@ -118,6 +118,37 @@ def assumed_uncertainty_range(score, maximum_score):
 
     return lower_bound, upper_bound
 
+# prepares lists needed for weighted regression
+def prepare_regression_data(assessments, total_topics,
+                            latest_assessment_date, reference_date):
+
+    times = []
+    weights = []
+    score_percentages = []
+
+    for assessment in assessments:
+        score_percentage = number(assessment["score_percentage"])
+
+        if score_percentage < 0 or score_percentage > 100:
+            raise ValueError("Invalid assessment percentage")
+
+        time = days_between(reference_date, assessment["assessment_date"])
+
+        weight = assessment_weight(
+            assessment["assessment_type_importance_weight"],
+            assessment["assessment_date"],
+            latest_assessment_date,
+            assessment["topics_covered"],
+            total_topics
+        )
+
+        times.append(time)
+        weights.append(weight)
+        score_percentages.append(score_percentage)
+
+    return times, weights, score_percentages
+
+
 # Statistics
 
 # Mean of percentage scores
@@ -148,6 +179,7 @@ def median(scores): # must take list of scores in percentage form
 
 # Prediction
 
+# Weighted Linear Regression (WLR), provides line info to make future predictions, and showcase trend
 def weighted_regression(times, score_percentages, weights):
     # Validation
     if (len(times) != len(score_percentages)) or (len(times) != len(weights)):
@@ -196,6 +228,7 @@ def weighted_regression(times, score_percentages, weights):
 
     return slope, intercept, mean_score_percentage
 
+# Estimates, based on mean and future prediction, the expected PG
 def estimate_predicted_grade_score_percentage(slope, intercept, prediction_time,
                                               mean_score_percentage):
 
@@ -221,7 +254,7 @@ def estimate_predicted_grade_score_percentage(slope, intercept, prediction_time,
 
     return predicted_score_percentage
 
-
+# Calculates sum of all PGs to get an overall PG
 def overall_pg(subjects_predicted_scores):  # takes in list of individual PGs
     # Validation
     if len(subjects_predicted_scores) != 6:
@@ -234,3 +267,196 @@ def overall_pg(subjects_predicted_scores):  # takes in list of individual PGs
 
     # Sum of individual predicted scores
     return sum(subjects_predicted_scores)
+
+
+# Advice
+
+# validates inputs for minimum required percentage calculation
+def validate_minimum_required(existing_assessments, proposed_assessment,
+                              total_topics, prediction_date,
+                              target_grade, boundaries):
+
+    if len(existing_assessments) == 0:
+        raise ValueError("No existing assessments available")
+
+    total_topics = integer(total_topics)
+    target_grade = integer(target_grade)
+
+    if total_topics <= 0:
+        raise ValueError("Invalid total topics count")
+
+    if target_grade < 1 or target_grade > 7:
+        raise ValueError("Target grade must be between 1 and 7")
+
+    if target_grade not in boundaries:
+        raise ValueError("No boundary available for target grade")
+
+    target_percentage = number(boundaries[target_grade])
+
+    if target_percentage < 0 or target_percentage > 100:
+        raise ValueError("Invalid target percentage")
+
+    # finds earliest and latest existing assessment dates
+    dates = []
+
+    for assessment in existing_assessments:
+        assessment_date = assessment["assessment_date"]
+
+        # also validates the date
+        days_between(assessment_date, assessment_date)
+        dates.append(assessment_date)
+
+    reference_date = min(dates)
+    latest_assessment_date = max(dates)
+    proposed_date = proposed_assessment["assessment_date"]
+
+    # checks dates are in the correct order
+    if days_between(latest_assessment_date, proposed_date) < 0:
+        raise ValueError("Proposed assessment date is before latest assessment")
+
+    if days_between(proposed_date, prediction_date) < 0:
+        raise ValueError("Prediction date is before proposed assessment")
+
+    return total_topics, target_percentage, reference_date, proposed_date
+
+
+# calculates regression after adding a possible future score
+def regression_with_proposed_score(times, weights, existing_scores,
+                                   proposed_score):
+
+    scores = existing_scores.copy()
+    scores.append(proposed_score)
+
+    return weighted_regression(times, scores, weights)
+
+
+# finds points where future prediction reaches the 0 or 100 limits
+def prediction_breakpoints(forecast_zero, forecast_hundred):
+
+    breakpoints = [0, 100]
+    forecast_change = forecast_hundred - forecast_zero
+
+    if forecast_change != 0:
+        for forecast_boundary in [0, 100]:
+            fraction = (forecast_boundary - forecast_zero) / forecast_change
+
+            if 0 < fraction < 1:
+                breakpoints.append(fraction * 100)
+
+    breakpoints.sort()
+
+    return breakpoints
+
+
+# calculates predicted percentage for a possible future score
+def predicted_percentage_for_proposed_score(
+        proposed_score,
+        slope_zero, intercept_zero, mean_zero,
+        slope_hundred, intercept_hundred, mean_hundred,
+        prediction_time):
+
+    fraction = proposed_score / 100
+
+    slope = slope_zero + fraction * (slope_hundred - slope_zero)
+    intercept = intercept_zero + fraction * (intercept_hundred - intercept_zero)
+    mean_score_percentage = mean_zero + fraction * (mean_hundred - mean_zero)
+
+    return estimate_predicted_grade_score_percentage(
+        slope,
+        intercept,
+        prediction_time,
+        mean_score_percentage
+    )
+
+
+# finds minimum percentage needed in a future assessment
+# to reach the target predicted grade
+def minimum_required_percentage(existing_assessments, proposed_assessment,
+                                total_topics, prediction_date,
+                                target_grade, boundaries):
+
+    # validation
+    total_topics, target_percentage, reference_date, proposed_date = validate_minimum_required(
+        existing_assessments,
+        proposed_assessment,
+        total_topics,
+        prediction_date,
+        target_grade,
+        boundaries
+    )
+
+    # prepares data from existing assessments
+    times, weights, score_percentages = prepare_regression_data(
+        existing_assessments,
+        total_topics,
+        proposed_date,
+        reference_date
+    )
+
+    # adds the proposed assessment time and weight
+    proposed_time = days_between(reference_date, proposed_date)
+
+    proposed_weight = assessment_weight(
+        proposed_assessment["assessment_type_importance_weight"],
+        proposed_date,
+        proposed_date,
+        proposed_assessment["topics_covered"],
+        total_topics
+    )
+
+    times.append(proposed_time)
+    weights.append(proposed_weight)
+
+    # finds regression values if proposed score is 0%
+    slope_zero, intercept_zero, mean_zero = regression_with_proposed_score(
+        times, weights, score_percentages, 0
+    )
+
+    # finds regression values if proposed score is 100%
+    slope_hundred, intercept_hundred, mean_hundred = regression_with_proposed_score(
+        times, weights, score_percentages, 100
+    )
+
+    prediction_time = days_between(reference_date, prediction_date)
+
+    # estimates future regression values before the 0-100 limit is applied
+    forecast_zero = slope_zero * prediction_time + intercept_zero
+    forecast_hundred = slope_hundred * prediction_time + intercept_hundred
+
+    breakpoints = prediction_breakpoints(forecast_zero, forecast_hundred)
+
+    # calculates predicted percentage for each breakpoint
+    predictions = []
+
+    for proposed_score in breakpoints:
+        predicted_percentage = predicted_percentage_for_proposed_score(
+            proposed_score,
+            slope_zero, intercept_zero, mean_zero,
+            slope_hundred, intercept_hundred, mean_hundred,
+            prediction_time
+        )
+
+        predictions.append(predicted_percentage)
+
+    # target is reached even with a score of 0%
+    if predictions[0] >= target_percentage:
+        return 0
+
+    # finds the interval in which the target is reached
+    for i in range(len(breakpoints) - 1):
+        if predictions[i + 1] >= target_percentage:
+            prediction_change = predictions[i + 1] - predictions[i]
+
+            if prediction_change == 0:
+                continue
+
+            fraction = (target_percentage - predictions[i]) / prediction_change
+
+            required_percentage = breakpoints[i] + fraction * (
+                breakpoints[i + 1] - breakpoints[i]
+            )
+
+            return required_percentage
+
+    # target is not reached even with 100%
+    return "Target can't be reached with this assessment"
