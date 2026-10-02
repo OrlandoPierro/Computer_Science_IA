@@ -437,6 +437,28 @@ def delete_assessment(user_subject_id):
 
     return redirect(url_for("load_assessments", user_subject_id=user_subject_id))
 
+# helper that returns grade boundaries for a subject
+def get_boundaries(subject_id, exam_year, exam_session):
+    connection = get_db()
+    cursor = connection.cursor()
+
+    command = """SELECT grade, lower_boundary
+                 FROM grade_boundaries
+                 WHERE subject_id=? AND exam_year=? AND exam_session=?
+                 ORDER BY grade"""
+
+    cursor.execute(command, (subject_id, exam_year, exam_session))
+    rows = cursor.fetchall()
+
+    connection.close()
+
+    boundaries = {}
+
+    for boundary in rows:
+        boundaries[boundary["grade"]] = boundary["lower_boundary"]
+
+    return boundaries
+
 if __name__ == "__main__":
     app.run(debug=True)
 
