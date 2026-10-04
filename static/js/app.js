@@ -48,24 +48,69 @@ document.querySelectorAll('.modal').forEach(modal => {
   });
 });
 
-// Level is a UI filter. The form sends the real backend subject_id.
 const subjectSelect = document.getElementById('subject-select');
+
 if (subjectSelect) {
-  const options = Array.from(subjectSelect.querySelectorAll('option[data-level]'));
-  const filterSubjects = () => {
-    const level = document.querySelector('input[name="subject_level"]:checked').value;
-    subjectSelect.value = '';
-    options.forEach(option => {
-      option.hidden = option.dataset.level !== level;
-      option.disabled = option.hidden;
+  const subjectId = document.getElementById('selected-subject-id');
+  const levelButtons = Array.from(
+    document.querySelectorAll('input[name="subject_level"]')
+  );
+  const submitButton = document.querySelector(
+    '#add-subject-form button[type="submit"]'
+  );
+  const message = document.getElementById('subject-availability');
+
+  // Send the database ID corresponding to the selected subject and level.
+  function updateSubjectId() {
+    const option = subjectSelect.selectedOptions[0];
+    const level = levelButtons.find(
+      button => button.checked && !button.disabled
+    );
+
+    subjectId.value = option && level
+      ? option.dataset[level.value.toLowerCase()] || ''
+      : '';
+
+    submitButton.disabled = !subjectId.value;
+  }
+
+  // Enable only levels available for the chosen subject.
+  function updateLevels() {
+    const option = subjectSelect.selectedOptions[0];
+
+    levelButtons.forEach(button => {
+      const id = option?.dataset[button.value.toLowerCase()];
+
+      button.disabled = !id;
+
+      if (button.disabled) {
+        button.checked = false;
+      }
     });
-    const available = options.some(option => !option.disabled);
-    document.querySelector('#add-subject-form button[type="submit"]').disabled = !available;
-    document.getElementById('subject-availability').textContent = available
-      ? 'Subjects already added are omitted.' : 'All available subjects at this level have already been added.';
-  };
-  document.querySelectorAll('input[name="subject_level"]').forEach(radio => radio.addEventListener('change', filterSubjects));
-  filterSubjects();
+
+    const available = levelButtons.filter(button => !button.disabled);
+
+    // Keep the previous level when possible; otherwise select an available one.
+    if (!available.some(button => button.checked) && available.length) {
+      available[0].checked = true;
+    }
+
+    message.textContent = !subjectSelect.value
+      ? 'Choose a subject, then select its level.'
+      : available.length === 2
+        ? 'Choose HL or SL below.'
+        : 'Unavailable or already-added levels are disabled.';
+
+    updateSubjectId();
+  }
+
+  subjectSelect.addEventListener('change', updateLevels);
+
+  levelButtons.forEach(button => {
+    button.addEventListener('change', updateSubjectId);
+  });
+
+  updateLevels();
 }
 
 const assessmentForm = document.getElementById('assessment-form');

@@ -46,11 +46,42 @@
     <form method="post" action="{{ url_for('add_subject') }}" id="add-subject-form">
       <div class="modal-body">
         <div class="mb-3"><label for="subject-select" class="form-label">Subject</label>
-          <select class="form-select" id="subject-select" name="subject_id" required>
-            <option value="" selected disabled>Choose a subject</option>
-            {% set added = user_subjects|map(attribute='subject_id')|list %}
-            {% for subject in subjects %}{% if subject['subject_id'] not in added %}<option value="{{ subject['subject_id'] }}" data-level="{{ subject['level'] }}">{{ subject['subject_name'] }} · {{ subject['level'] }}</option>{% endif %}{% endfor %}
+          <select class="form-select" id="subject-select" required>
+  <option value="" selected disabled>Choose a subject</option>
+
+            {% set added = user_subjects|map(attribute='subject_name')|list %}
+
+            {% for group in subjects|groupby('subject_name') %}
+              {% set ids = namespace(hl='', sl='') %}
+
+              {% for subject in group.list %}
+                {% if subject['subject_id'] not in added %}
+                  {% if subject['level'] == 'HL' %}
+                    {% set ids.hl = subject['subject_id'] %}
+                  {% else %}
+                    {% if subject['subject_name'] not in added %}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+
+              {% if ids.hl or ids.sl %}
+                <option
+                  value="{{ group.grouper }}"
+                  data-hl="{{ ids.hl }}"
+                  data-sl="{{ ids.sl }}"
+                >
+                  {{ group.grouper }}
+                </option>
+              {% endif %}
+            {% endfor %}
           </select>
+
+          <input
+            type="hidden"
+            id="selected-subject-id"
+            name="subject_id"
+            value=""
+          >
           <p class="form-text" id="subject-availability" role="status"></p>
         </div>
         <fieldset class="mb-4"><legend class="form-label">Level</legend><div class="d-flex gap-2">

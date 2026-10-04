@@ -209,9 +209,13 @@ def add_subject():
         flash("Invalid subject")
         return redirect(url_for("home"))
 
-    # check if subject was already added to user_subjects
-    cursor.execute("""SELECT user_subject_id FROM user_subjects 
-                      WHERE user_id=? AND subject_id=?""", (session["user_id"], subject_id))
+    # check if subject (at any level) was already added to user_subjects
+    cursor.execute("SELECT subject_name FROM subjects WHERE subject_id=?", (subject_id,))
+    subject_name = cursor.fetchone()["subject_name"]
+
+    cursor.execute("""SELECT user_subjects.user_subject_id FROM user_subjects JOIN subjects 
+                    ON user_subjects.subject_id = subjects.subject_id 
+                    WHERE user_subjects.user_id=? AND subjects.subject_name=?""", (session["user_id"], subject_name))
 
     existing_subject = cursor.fetchone()
 
