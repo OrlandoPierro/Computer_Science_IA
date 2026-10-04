@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, request, session, flash, url
 from werkzeug.security import generate_password_hash, check_password_hash
 from secrets import token_hex
 
-from logic import integer, number, days_between, percentage
+from logic import integer, number, days_between, percentage, analyse_subject
 from database import get_db
 
 app = Flask(__name__)
@@ -306,7 +306,14 @@ def load_assessments(user_subject_id):
     assessments = cursor.fetchall()
 
     connection.close()
-    return render_template("subject.html", subject=subject, assessments=assessments)
+
+    # retrieves boundaries for subject
+    boundaries = get_boundaries(subject["subject_id"], 2025, "May")
+
+    # calculates subject stats and prediction
+    analysis = analyse_subject(assessments, subject["total_topics"], boundaries)
+
+    return render_template("subject.html", subject=subject, assessments=assessments, analysis=analysis)
 
 # allows users to add an assessment for a subject
 @app.route("/subject/<int:user_subject_id>/add_assessment",methods=("POST",))
