@@ -33,6 +33,7 @@ def home():
     # finds user subjects info
     command = """SELECT user_subjects.user_subject_id, 
                         subjects.subject_name, 
+                        subjects.subject_id,
                         subjects.level, 
                         subjects.total_topics, 
                         user_subjects.target_grade 
@@ -50,11 +51,27 @@ def home():
     predicted_grades = []
 
     for subject in user_subjects:
-        subject_analysis = analyse_subject(subject["assessments"], 
-                                            subject["total_topics"], 
-                                            get_boundaries(subject["user_subject_id"], 2025, "May"))
-        
-        subject_means.append(subject_analysis["mean"])
+            
+        connection = get_db()
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """SELECT * FROM assessments
+            WHERE user_subject_id=?
+            ORDER BY assessment_date""",
+            (subject["user_subject_id"],)
+        )
+
+        assessments = cursor.fetchall()
+        connection.close()
+
+        subject_analysis = analyse_subject(assessments, 
+                                           subject["total_topics"],
+                                           get_boundaries(subject["subject_id"], 2025, "May"))
+
+        if subject_analysis["mean"] != "N/A":
+            subject_means.append(subject_analysis["mean"])
+
         predicted_grades.append(subject_analysis["predicted_grade"])
 
     overall_analysis = analyse_overall(subject_means, predicted_grades)

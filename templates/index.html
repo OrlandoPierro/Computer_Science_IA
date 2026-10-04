@@ -27,5 +27,9 @@
 
     <button type="submit">Add subject</button>
 </form>
+    <p>Overall mean: {{ overall_analysis["mean"] }}</p>
+    <p>Overall median: {{ overall_analysis["median"] }}</p>
+    <p>Overall PG: {{ overall_analysis["predicted_grade"] }}</p>
+    <p>Uncertainty: {{ overall_analysis["uncertainty_range"] }}</p>
 </body>
 </html>
