@@ -15,7 +15,7 @@ def home():
     user_id = session.get('user_id')    # retrieves user id from session
 
     if not user_id:
-        return redirect(url_for("login"))
+        return render_template("home.html")
 
     # open db
     connection = get_db()
@@ -148,7 +148,7 @@ def login():
 def logout():
     # terminates session
     session.pop('user_id', None)  
-    return redirect(url_for("login"))
+    return redirect(url_for("home"))
 
 @app.route('/delete_account', methods=("POST",))
 def delete():
