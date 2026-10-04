@@ -289,8 +289,7 @@ def overall_pg(subjects_predicted_scores):  # takes in list of individual PGs
 
 # validates inputs for minimum required percentage calculation
 def validate_minimum_required(existing_assessments, proposed_assessment,
-                              total_topics, prediction_date,
-                              target_grade, boundaries):
+                              total_topics, target_grade, boundaries):
 
     if len(existing_assessments) == 0:
         raise ValueError("No existing assessments available")
@@ -329,9 +328,6 @@ def validate_minimum_required(existing_assessments, proposed_assessment,
     # checks dates are in the correct order
     if days_between(latest_assessment_date, proposed_date) < 0:
         raise ValueError("Proposed assessment date is before latest assessment")
-
-    if days_between(proposed_date, prediction_date) < 0:
-        raise ValueError("Prediction date is before proposed assessment")
 
     return total_topics, target_percentage, reference_date, proposed_date
 
@@ -388,7 +384,7 @@ def predicted_percentage_for_proposed_score(
 # finds minimum percentage needed in a future assessment
 # to reach the target predicted grade
 def minimum_required_percentage(existing_assessments, proposed_assessment,
-                                total_topics, prediction_date,
+                                total_topics,
                                 target_grade, boundaries):
 
     # validation
@@ -396,7 +392,6 @@ def minimum_required_percentage(existing_assessments, proposed_assessment,
         existing_assessments,
         proposed_assessment,
         total_topics,
-        prediction_date,
         target_grade,
         boundaries
     )
@@ -433,7 +428,8 @@ def minimum_required_percentage(existing_assessments, proposed_assessment,
         times, weights, score_percentages, 100
     )
 
-    prediction_time = days_between(reference_date, prediction_date)
+    # predicts up to 60 days after proposed date
+    prediction_time = days_between(reference_date, proposed_date) + 60
 
     # estimates future regression values before the 0-100 limit is applied
     forecast_zero = slope_zero * prediction_time + intercept_zero
@@ -476,6 +472,47 @@ def minimum_required_percentage(existing_assessments, proposed_assessment,
 
     # target is not reached even with 100%
     return "Target can't be reached with this assessment"
+
+# Calculates advice for future assessment
+def calculate_advice(assessments, proposed_assessment, total_topics,
+                    target_grade, boundaries):
+
+    assessment_type = proposed_assessment["assessment_type"]
+    assessment_date = proposed_assessment["assessment_date"]
+    topics_covered_count = proposed_assessment["topics_covered_count"]
+
+    # Validation
+    total_topics = integer(total_topics)
+    topics_covered_count = integer(topics_covered_count)
+
+    if topics_covered_count < 0 or topics_covered_count > total_topics:
+        raise ValueError("Invalid number of topics covered")
+
+    type_weight = assessment_type_weight(assessment_type)
+
+    # prepares existing assessment info
+    existing_assessments = []
+
+    for assessment in assessments:
+        existing_assessments.append({
+            "score_percentage": percentage(assessment["score"], assessment["maximum_score"]),
+            "assessment_type_importance_weight": assessment_type_weight(assessment["assessment_type"]),
+            "assessment_date": assessment["assessment_date"],
+            "topics_covered": assessment["topics_covered_count"]
+        })
+
+    # prepares proposed assessment info
+    proposed_assessment = {
+        "assessment_type_importance_weight": type_weight,
+        "assessment_date": assessment_date,
+        "topics_covered": topics_covered_count
+    }
+
+    return minimum_required_percentage(existing_assessments,
+                                        proposed_assessment,
+                                        total_topics,
+                                        target_grade,
+                                        boundaries)
 
 
 # Analysis (returns full info breakdown directly)
