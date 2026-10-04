@@ -568,3 +568,26 @@ def analyse_subject(assessments, total_topics, boundaries):
         "slope": slope,
         "intercept": intercept
     }
+
+# Calculates overall stats and pg
+def analyse_overall(subject_means, predicted_grades):
+
+    # calculates overall mean and median
+    if len(subject_means) == 0:
+        overall_mean = "N/A"
+        overall_median = "N/A"
+    else:
+        overall_mean = mean(subject_means)
+        overall_median = median(subject_means)
+
+    # calculates overall pg
+    overall_predicted = overall_pg(predicted_grades)
+
+    uncertainty_range = assumed_uncertainty_range(overall_predicted, 42)
+
+    return {
+        "mean": overall_mean,
+        "median": overall_median,
+        "predicted_grade": overall_predicted,
+        "uncertainty_range": uncertainty_range
+    }
