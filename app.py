@@ -76,6 +76,9 @@ def home():
 
     overall_analysis = analyse_overall(subject_means, predicted_grades)
 
+    if request.args.get("view") == "overall":
+        return render_template("overall.html", username=user["username"], user_subjects=user_subjects, overall_analysis=overall_analysis)
+
     return render_template('index.html', username=user["username"], user_subjects=user_subjects, subjects=get_subjects(), overall_analysis=overall_analysis)
 
 @app.route('/register', methods=('GET', 'POST'))

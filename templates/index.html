@@ -55,11 +55,11 @@
               {% set ids = namespace(hl='', sl='') %}
 
               {% for subject in group.list %}
-                {% if subject['subject_id'] not in added %}
+                {% if subject['subject_name'] not in added %}
                   {% if subject['level'] == 'HL' %}
                     {% set ids.hl = subject['subject_id'] %}
                   {% else %}
-                    {% if subject['subject_name'] not in added %}
+                    {% set ids.sl = subject['subject_id'] %}
                   {% endif %}
                 {% endif %}
               {% endfor %}
