@@ -1,4 +1,25 @@
 <h1>{{ subject["subject_name"] }} {{ subject["level"] }}</h1>
+<form action="{{ url_for('add_assessments', user_subject_id=subject['user_subject_id']) }}" method="POST">
+
+    <select name="assessment_type">
+        <option value="Learning Experience">Learning Experience</option>
+        <option value="Formative">Formative</option>
+        <option value="Summative">Summative</option>
+        <option value="Mock Exam">Mock Exam</option>
+        <option value="IA">IA</option>
+    </select>
+
+    <input type="number" step="any" name="score" placeholder="Score">
+
+    <input type="number" step="any" name="maximum_score" placeholder="Maximum score">
+
+    <input type="date" name="assessment_date">
+
+    <input type="number" name="topics_covered_count" placeholder="Topics covered">
+
+    <button type="submit">Add assessment</button>
+
+</form>
 
 {% for assessment in assessments %}
     <p>
@@ -9,3 +30,8 @@
         {{ assessment["score"] }}/{{ assessment["maximum_score"] }}
     </p>
 {% endfor %}
+    <p>Mean: {{ analysis["mean"] }}</p>
+    <p>Median: {{ analysis["median"] }}</p>
+    <p>Predicted percentage: {{ analysis["predicted_percentage"] }}</p>
+    <p>Predicted grade: {{ analysis["predicted_grade"] }}</p>
+    <p>Uncertainty: {{ analysis["uncertainty_range"] }}</p>
