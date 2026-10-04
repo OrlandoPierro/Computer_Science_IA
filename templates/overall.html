@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import value, uncertainty %}
+{% block title %}Overall performance · IB Grade Tracker{% endblock %}
+{% block content %}
+<div class="overall-shell">
+  <div class="page-heading"><div><p class="eyebrow">THE BIG PICTURE</p><h1>Overall performance</h1></div></div>
+  <section class="card overall-card" aria-labelledby="overall-pg-title">
+    <p class="eyebrow" id="overall-pg-title">OVERALL EXPECTED PG</p>
+    <div class="overall-grade">{{ value(overall_analysis['predicted_grade'], '', 0) }}<span> / 42</span></div>
+    <p class="range-label">Assumed uncertainty range: <strong>{{ uncertainty(overall_analysis['uncertainty_range'], 42) }}</strong></p>
+    <div class="row g-3 overall-statistics">
+      <div class="col-sm-6"><div class="stat-box"><span>Mean</span><strong>{{ value(overall_analysis['mean'], '%') }}</strong></div></div>
+      <div class="col-sm-6"><div class="stat-box"><span>Median</span><strong>{{ value(overall_analysis['median'], '%') }}</strong></div></div>
+    </div>
+    <p class="form-text mt-3 mb-0">Mean and median are calculated from the available subject means. The total PG requires exactly six subjects with predictions and excludes TOK / EE points.</p>
+    {% if overall_analysis['predicted_grade'] == 'N/A' %}<div class="empty-notice mt-4">Your overall prediction will appear when all six subjects have enough assessment data to calculate a prediction.</div>{% endif %}
+  </section>
+  <div class="overall-bottom">
+    <a class="btn btn-outline-primary back-home" href="{{ url_for('home') }}"><span aria-hidden="true">←</span> Go back to Home</a>
+    <section class="card target-summary" aria-label="Distance from target">
+      {% set target = namespace(total=0) %}{% for subject in user_subjects %}{% set target.total = target.total + subject['target_grade'] %}{% endfor %}
+      <p class="eyebrow">YOUR TARGET</p>
+      {% if user_subjects|length == 6 %}
+        <h2>{{ target.total }} <span class="fs-6 text-secondary">/ 42</span></h2>
+        {% if overall_analysis['predicted_grade'] is number %}
+          {% set gap = target.total - overall_analysis['predicted_grade'] %}
+          <p class="mb-0">{% if gap > 0 %}<strong>{{ gap }}</strong> point{{ 's' if gap != 1 }} away from your target PG.{% elif gap < 0 %}<strong>{{ -gap }}</strong> point{{ 's' if gap != -1 }} above your target PG.{% else %}Your predicted total meets your target.{% endif %}</p>
+        {% else %}<p class="text-secondary mb-0">The distance from your target will appear once your overall PG is available.</p>{% endif %}
+      {% else %}<p class="text-secondary mb-0">Add six subjects to see your total target and how far you are from it.</p>{% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

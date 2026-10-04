@@ -1,35 +1,67 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>IB PG Predictor</title>
-</head>
-
-<body>
-    <h1>Predict your PG </h1>
-    <p>working
-    {{ username }}
-    {% for subject in user_subjects %}
-        {{ subject["subject_name"] }}
-        {{ subject["level"] }}
-        {{ subject["target"] }}
-    {% endfor %}
-    </p>
-    <form action="{{ url_for('add_subject') }}" method="POST">
-    <select name="subject_id" required>
-        {% for subject in subjects %}
-            <option value="{{ subject['subject_id'] }}">
-                {{ subject['subject_name'] }} {{ subject['level'] }}
-            </option>
-        {% endfor %}
-    </select>
-
-    <input type="number" name="target_grade" min="1" max="7" required>
-
-    <button type="submit">Add subject</button>
-</form>
-    <p>Overall mean: {{ overall_analysis["mean"] }}</p>
-    <p>Overall median: {{ overall_analysis["median"] }}</p>
-    <p>Overall PG: {{ overall_analysis["predicted_grade"] }}</p>
-    <p>Uncertainty: {{ overall_analysis["uncertainty_range"] }}</p>
-</body>
-</html>
+{% extends 'base.html' %}
+{% from '_macros.html' import grades %}
+{% block title %}Your subjects · IB PG Estimator{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+  <div class="page-heading">
+    <div><p class="eyebrow">YOUR DASHBOARD</p><h1>Welcome, {{ username }}!</h1></div>
+    <div class="dropdown">
+      <button class="btn menu-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Account menu"><span aria-hidden="true">☰</span></button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{{ url_for('logout') }}">Log out</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><form method="post" action="{{ url_for('delete') }}" data-confirm="Delete your account and all your subjects and assessments? This cannot be undone."><button class="dropdown-item text-danger" type="submit">Delete account</button></form></li>
+      </ul>
+    </div>
+  </div>
+  <section class="card subjects-card" aria-labelledby="subjects-title">
+    <div class="section-heading"><h2 id="subjects-title">Your subjects</h2><span class="count-badge">{{ user_subjects|length }} / 6</span></div>
+    <ul class="subject-list list-unstyled mb-0">
+      {% for subject in user_subjects %}
+      <li class="subject-row">
+        <span class="subject-number" aria-hidden="true">{{ '%02d'|format(loop.index) }}</span>
+        <a class="subject-link" href="{{ url_for('load_assessments', user_subject_id=subject['user_subject_id']) }}"><span>{{ subject['subject_name'] }}</span><small>{{ subject['level'] }} <span aria-hidden="true">·</span> Target {{ subject['target_grade'] }} / 7</small></a>
+        <form action="{{ url_for('delete_subject') }}" method="post" data-confirm="Delete {{ subject['subject_name'] }} {{ subject['level'] }} and its assessments? This cannot be undone.">
+          <input type="hidden" name="user_subject_id" value="{{ subject['user_subject_id'] }}">
+          <button class="btn remove-button" type="submit" aria-label="Delete {{ subject['subject_name'] }} {{ subject['level'] }}"><span aria-hidden="true">×</span></button>
+        </form>
+      </li>
+      {% endfor %}
+      {% for i in range(user_subjects|length, 6) %}
+      <li class="subject-row empty-subject"><span class="subject-number" aria-hidden="true">{{ '%02d'|format(i+1) }}</span><span>Subject not added</span><span class="empty-mark" aria-hidden="true">—</span></li>
+      {% endfor %}
+    </ul>
+    <a class="overall-link" href="{{ url_for('home', view='overall') }}">See overall performance <span aria-hidden="true">↗</span></a>
+  </section>
+  {% if user_subjects|length < 6 %}
+  <button type="button" class="add-subject-button" data-bs-toggle="modal" data-bs-target="#add-subject-modal"><span class="plus-icon" aria-hidden="true">+</span><span>Add another subject<small>Choose a subject, level and target grade</small></span><span aria-hidden="true">→</span></button>
+  {% else %}<p class="text-secondary text-center mt-4">All six subjects are added. Open a subject to record an assessment.</p>{% endif %}
+</div>
+{% endblock %}
+{% block modals %}
+{% if user_subjects|length < 6 %}
+<div class="modal fade" id="add-subject-modal" tabindex="-1" aria-labelledby="add-subject-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+    <div class="modal-header"><h2 class="modal-title fs-5" id="add-subject-title">Add a subject</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <form method="post" action="{{ url_for('add_subject') }}" id="add-subject-form">
+      <div class="modal-body">
+        <div class="mb-3"><label for="subject-select" class="form-label">Subject</label>
+          <select class="form-select" id="subject-select" name="subject_id" required>
+            <option value="" selected disabled>Choose a subject</option>
+            {% set added = user_subjects|map(attribute='subject_id')|list %}
+            {% for subject in subjects %}{% if subject['subject_id'] not in added %}<option value="{{ subject['subject_id'] }}" data-level="{{ subject['level'] }}">{{ subject['subject_name'] }} · {{ subject['level'] }}</option>{% endif %}{% endfor %}
+          </select>
+          <p class="form-text" id="subject-availability" role="status"></p>
+        </div>
+        <fieldset class="mb-4"><legend class="form-label">Level</legend><div class="d-flex gap-2">
+          <input type="radio" class="btn-check" name="subject_level" id="level-hl" value="HL" checked><label class="btn btn-outline-primary" for="level-hl">HL</label>
+          <input type="radio" class="btn-check" name="subject_level" id="level-sl" value="SL"><label class="btn btn-outline-primary" for="level-sl">SL</label>
+        </div></fieldset>
+        <fieldset><legend class="form-label">Target grade</legend>{{ grades('target_grade', prefix='add-target') }}</fieldset>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" type="submit">Add subject</button></div>
+    </form>
+  </div></div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#245747">
+  <title>{% block title %}IB PG Estimator{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script defer src="{{ url_for('static', filename='vendor/bootstrap.bundle.min.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</head>
+<body>
+  <a class="visually-hidden-focusable skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a class="brand" href="{{ url_for('home') }}" aria-label="IB Grade Tracker home"><span class="brand-icon" aria-hidden="true">↗</span> IB Predicted Grade Estimator</a>
+    </div>
+  </header>
+  <main id="main" class="container main-container">
+    {% with messages = get_flashed_messages() %}
+      {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss message"></button>
+        </div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer container">Computer Science IA: IB Predicted Grade Estimator</footer>
+
+  {# One reusable confirmation popup. JavaScript submits the original POST form only after confirmation. #}
+  <div class="modal fade" id="confirm-modal" tabindex="-1" aria-labelledby="confirm-title" aria-describedby="confirm-message" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="confirm-title">Are you sure?</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><p id="confirm-message" class="mb-0"></p></div>
+      <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">No, keep it</button><button type="button" id="confirm-action" class="btn btn-danger">Yes, delete</button></div>
+    </div></div>
+  </div>
+  {% block modals %}{% endblock %}
+</body>
+</html>

@@ -258,12 +258,11 @@ def delete_subject():
     return redirect(url_for("home"))
 
 # Allows users to change their target grade
-@app.route("/update_target", methods=("POST",))
-def update_target():
+@app.route("/subject/<int:user_subject_id>/update_target", methods=("POST",))
+def update_target(user_subject_id):
     if "user_id" not in session:
         return redirect(url_for("login"))
     
-    user_subject_id = request.form.get("user_subject_id", "")
     target_grade = request.form.get("target_grade", "")
 
     # Validation
@@ -301,7 +300,7 @@ def update_target():
     connection.commit()
     connection.close()
 
-    return redirect(url_for("home"))
+    return redirect(url_for("load_assessments", user_subject_id=user_subject_id))
 
 # Loads all subject specific info for user
 @app.route("/subject/<int:user_subject_id>")

@@ -1,84 +1,79 @@
-<h1>{{ subject["subject_name"] }} {{ subject["level"] }}</h1>
-<form action="{{ url_for('add_assessments', user_subject_id=subject['user_subject_id']) }}" method="POST">
-
-    <select name="assessment_type">
-        <option value="Learning Experience">Learning Experience</option>
-        <option value="Formative">Formative</option>
-        <option value="Summative">Summative</option>
-        <option value="Mock Exam">Mock Exam</option>
-        <option value="IA">IA</option>
-    </select>
-
-    <input type="number" step="any" name="score" placeholder="Score">
-
-    <input type="number" step="any" name="maximum_score" placeholder="Maximum score">
-
-    <input type="date" name="assessment_date">
-
-    <input type="number" name="topics_covered_count" placeholder="Topics covered">
-
-    <button type="submit">Add assessment</button>
-
-</form>
-
-{% for assessment in assessments %}
-    <p>
-        {{ assessment["assessment_date"] }}
-        -
-        {{ assessment["assessment_type"] }}
-        -
-        {{ assessment["score"] }}/{{ assessment["maximum_score"] }}
-    </p>
-{% endfor %}
-    <p>Mean: {{ analysis["mean"] }}</p>
-    <p>Median: {{ analysis["median"] }}</p>
-    <p>Predicted percentage: {{ analysis["predicted_percentage"] }}</p>
-    <p>Predicted grade: {{ analysis["predicted_grade"] }}</p>
-    <p>Uncertainty: {{ analysis["uncertainty_range"] }}</p>
-
-<form id="advice-form">
-    <select name="assessment_type">
-        <option value="Learning Experience">Learning Experience</option>
-        <option value="Formative">Formative</option>
-        <option value="Summative">Summative</option>
-        <option value="Mock Exam">Mock Exam</option>
-        <option value="IA">IA</option>
-    </select>
-
-    <input type="date" name="assessment_date">
-
-    <input type="number"
-           name="topics_covered_count"
-           placeholder="Topics covered">
-
-    <button type="submit">Calculate advice</button>
-</form>
-
-<p id="advice-result"></p>
-
-<script>
-    document.getElementById("advice-form").addEventListener("submit", async function(event) {
-        event.preventDefault();
-
-        const formData = new FormData(this);
-
-        const response = await fetch(
-            "{{ url_for('advice', user_subject_id=subject['user_subject_id']) }}",
-            {
-                method: "POST",
-                body: formData
-            }
-        );
-
-        const result = await response.json();
-
-        if (response.ok) {
-            document.getElementById("advice-result").textContent =
-                "Minimum required score: " + result.required_percentage;
-        }
-        else {
-            document.getElementById("advice-result").textContent =
-                result.error;
-        }
-    });
-</script>
+{% extends 'base.html' %}
+{% from '_macros.html' import value, uncertainty, grades, assessment_fields %}
+{% block title %}{{ subject['subject_name'] }} {{ subject['level'] }} · IB PG Estimator{% endblock %}
+{% block scripts %}<script defer src="{{ url_for('static', filename='js/subject.js') }}"></script>{% endblock %}
+{% block content %}
+<div class="subject-shell">
+  <div class="page-heading subject-heading">
+    <div><p class="eyebrow">SUBJECT ANALYSIS <span class="level-badge">{{ subject['level'] }}</span></p><h1>{{ subject['subject_name'] }}</h1></div>
+    <button type="button" class="target-button" data-bs-toggle="modal" data-bs-target="#target-modal"><span>Target grade</span><strong>{{ subject['target_grade'] }} <small>/ 7</small></strong><span class="target-edit">Edit target ↗</span></button>
+  </div>
+  <section class="card chart-card" aria-labelledby="trajectory-title">
+    <div class="chart-top">
+      <dl class="chart-stats mb-0">
+        <div><dt>Mean</dt><dd>{{ value(analysis['mean'], '%') }}</dd></div>
+        <div><dt>Median</dt><dd>{{ value(analysis['median'], '%') }}</dd></div>
+        <div class="pg-stat"><dt>Expected PG</dt><dd>{{ value(analysis['predicted_grade'], '', 0) }} <small>/ 7</small></dd></div>
+      </dl>
+      <div class="chart-heading"><h2 id="trajectory-title">Assessment trajectory</h2><p class="text-secondary mb-2">Your scores and weighted regression over time.</p><div class="chart-legend"><span><i class="legend-dot"></i>Assessment</span><span><i class="legend-line"></i>Weighted trend</span></div></div>
+    </div>
+    <div id="trajectory-chart" class="trajectory-chart" aria-label="Assessment percentage scores plotted by date"></div>
+    {% if not assessments %}<p class="chart-empty">Your progress starts with one assessment.<br><span>Add your first test below to see it here.</span></p>{% elif analysis['predicted_grade'] == 'N/A' %}<p class="empty-notice">A prediction needs assessments on at least two distinct dates with positive weights. Assessments covering zero topics carry no weight.</p>{% endif %}
+    <div class="chart-footnote"><span>Estimated score: <strong>{{ value(analysis['predicted_percentage'], '%') }}</strong></span><span>Assumed PG range: <strong>{{ uncertainty(analysis['uncertainty_range'], 7) }}</strong></span></div>
+    <p class="form-text mb-0">Select a point to remove an assessment. The vertical axis shows percentages; the expected PG above is on the IB 1–7 scale.</p>
+    <noscript><p class="mt-3">Enable JavaScript to view the chart and use the popup forms. Your assessment records are listed below.</p></noscript>
+  </section>
+  <div class="subject-bottom">
+    <div class="subject-actions">
+      <button class="add-test-button" type="button" data-bs-toggle="modal" data-bs-target="#add-assessment-modal"><span class="plus-icon" aria-hidden="true">+</span><span>Add a new test<small>Record a completed assessment</small></span></button>
+      <a class="btn btn-outline-primary back-home" href="{{ url_for('home') }}"><span aria-hidden="true">←</span> Go back to Home</a>
+      <details class="assessment-records">
+        <summary>Assessment records <span class="count-badge">{{ assessments|length }}</span></summary>
+        <div class="table-responsive mt-3"><table class="table align-middle"><caption>All completed assessments. Delete removes the selected record after confirmation.</caption><thead><tr><th scope="col">Date / type</th><th scope="col">Score</th><th scope="col">Topics</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>
+          {% for assessment in assessments %}
+          <tr><td>{{ assessment['assessment_date'] }}<small class="d-block text-secondary">{{ assessment['assessment_type'] }}</small></td><td>{{ value(assessment['score'], '', 2) }} / {{ value(assessment['maximum_score'], '', 2) }}<small class="d-block text-secondary">{{ value(100 * assessment['score'] / assessment['maximum_score'], '%') }}</small></td><td>{{ assessment['topics_covered_count'] }} / {{ subject['total_topics'] }}</td><td>
+            <form id="delete-assessment-{{ assessment['assessment_id'] }}" action="{{ url_for('delete_assessment', user_subject_id=subject['user_subject_id']) }}" method="post" data-confirm="Delete the {{ assessment['assessment_type'] }} assessment from {{ assessment['assessment_date'] }} ({{ assessment['score'] }}/{{ assessment['maximum_score'] }})? This cannot be undone.">
+              <input type="hidden" name="assessment_id" value="{{ assessment['assessment_id'] }}"><button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Delete {{ assessment['assessment_type'] }} from {{ assessment['assessment_date'] }}">Delete</button>
+            </form>
+          </td></tr>
+          {% else %}<tr><td colspan="4" class="text-secondary">No assessments added yet.</td></tr>{% endfor %}
+        </tbody></table></div>
+      </details>
+    </div>
+    <section class="card advice-card" aria-labelledby="advice-title">
+      <p class="eyebrow">LOOKING AHEAD</p><h2 id="advice-title">Reach your target</h2><p class="text-secondary">Find the minimum score needed on your next assessment for a predicted grade of <strong>{{ subject['target_grade'] }}</strong>.</p>
+      <form id="advice-form" method="post" action="{{ url_for('advice', user_subject_id=subject['user_subject_id']) }}">
+        {{ assessment_fields('advice', subject['total_topics'], assessments[-1]['assessment_date'] if assessments else none) }}
+        <button type="submit" class="btn btn-primary w-100" {% if not assessments %}disabled{% endif %}>Calculate required score</button>
+      </form>
+      <div id="advice-result" class="advice-result" role="status" aria-live="polite" aria-atomic="true">{% if not assessments %}Add a completed assessment first to calculate advice.{% else %}Your required score will appear here.{% endif %}</div>
+    </section>
+  </div>
+</div>
+{# JSON is escaped by Jinja's tojson. No requests are needed for chart data. #}
+<script type="application/json" id="chart-data">{
+  "dates": {{ analysis['graph_dates']|tojson }},
+  "percentages": {{ analysis['graph_percentages']|tojson }},
+  "regression": {{ analysis['regression_percentages']|tojson }},
+  "assessments": [ {% for a in assessments %}{"id": {{ a['assessment_id']|tojson }}, "date": {{ a['assessment_date']|tojson }}, "type": {{ a['assessment_type']|tojson }}, "score": {{ a['score']|tojson }}, "maximum": {{ a['maximum_score']|tojson }}}{% if not loop.last %},{% endif %}{% endfor %} ]
+}</script>
+{% endblock %}
+{% block modals %}
+<div class="modal fade" id="target-modal" tabindex="-1" aria-labelledby="target-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+  <div class="modal-header"><h2 class="modal-title fs-5" id="target-title">Your target grade</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+  <form action="{{ url_for('update_target', user_subject_id=subject['user_subject_id']) }}" method="post"><input type="hidden" name="user_subject_id" value="{{ subject['user_subject_id'] }}">
+    <div class="modal-body"><p>{{ subject['subject_name'] }} · {{ subject['level'] }}</p>{{ grades('target_grade', subject['target_grade'], 'edit-target') }}<p class="form-text mb-0 mt-3"></p></div>
+    <div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" type="submit">Save target</button></div>
+  </form>
+</div></div></div>
+<div class="modal fade" id="add-assessment-modal" tabindex="-1" aria-labelledby="add-assessment-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+  <div class="modal-header"><h2 class="modal-title fs-5" id="add-assessment-title">Add a new test</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+  <form id="assessment-form" action="{{ url_for('add_assessments', user_subject_id=subject['user_subject_id']) }}" method="post">
+    <div class="modal-body">
+      <div class="row g-3 mb-3"><div class="col-6"><label class="form-label" for="score">Score</label><input class="form-control" id="score" name="score" type="number" min="0" step="any" required></div><div class="col-6"><label class="form-label" for="maximum-score">Out of</label><input class="form-control" id="maximum-score" name="maximum_score" type="number" min="0" step="any" required></div></div>
+      {{ assessment_fields('assessment', subject['total_topics']) }}
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" type="submit">Add assessment</button></div>
+  </form>
+</div></div></div>
+{% endblock %}
