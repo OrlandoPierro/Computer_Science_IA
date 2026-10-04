@@ -529,7 +529,10 @@ def analyse_subject(assessments, total_topics, boundaries):
             "predicted_grade": "N/A",
             "uncertainty_range": "N/A",
             "slope": "N/A",
-            "intercept": "N/A"
+            "intercept": "N/A",
+            "graph_dates": [],
+            "graph_percentages": [],
+            "regression_percentages": []
         }
 
     score_percentages = []
