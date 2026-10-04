@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, request, session, flash, url
 from werkzeug.security import generate_password_hash, check_password_hash
 from secrets import token_hex
 
-from logic import integer, number, days_between, percentage, analyse_subject
+from logic import integer, number, days_between, percentage, analyse_subject, analyse_overall
 from database import get_db
 
 app = Flask(__name__)
@@ -45,7 +45,21 @@ def home():
 
     connection.close()
 
-    return render_template('index.html', username=user["username"], user_subjects=user_subjects, subjects=get_subjects())
+    # Overall subject stats and pg calculation
+    subject_means = []
+    predicted_grades = []
+
+    for subject in user_subjects:
+        subject_analysis = analyse_subject(subject["assessments"], 
+                                            subject["total_topics"], 
+                                            get_boundaries(subject["user_subject_id"], 2025, "May"))
+        
+        subject_means.append(subject_analysis["mean"])
+        predicted_grades.append(subject_analysis["predicted_grade"])
+
+    overall_analysis = analyse_overall(subject_means, predicted_grades)
+
+    return render_template('index.html', username=user["username"], user_subjects=user_subjects, subjects=get_subjects(), overall_analysis=overall_analysis)
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
