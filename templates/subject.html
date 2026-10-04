@@ -35,3 +35,50 @@
     <p>Predicted percentage: {{ analysis["predicted_percentage"] }}</p>
     <p>Predicted grade: {{ analysis["predicted_grade"] }}</p>
     <p>Uncertainty: {{ analysis["uncertainty_range"] }}</p>
+
+<form id="advice-form">
+    <select name="assessment_type">
+        <option value="Learning Experience">Learning Experience</option>
+        <option value="Formative">Formative</option>
+        <option value="Summative">Summative</option>
+        <option value="Mock Exam">Mock Exam</option>
+        <option value="IA">IA</option>
+    </select>
+
+    <input type="date" name="assessment_date">
+
+    <input type="number"
+           name="topics_covered_count"
+           placeholder="Topics covered">
+
+    <button type="submit">Calculate advice</button>
+</form>
+
+<p id="advice-result"></p>
+
+<script>
+    document.getElementById("advice-form").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+
+        const response = await fetch(
+            "{{ url_for('advice', user_subject_id=subject['user_subject_id']) }}",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const result = await response.json();
+
+        if (response.ok) {
+            document.getElementById("advice-result").textContent =
+                "Minimum required score: " + result.required_percentage;
+        }
+        else {
+            document.getElementById("advice-result").textContent =
+                result.error;
+        }
+    });
+</script>

@@ -577,7 +577,16 @@ def analyse_subject(assessments, total_topics, boundaries):
             "uncertainty_range": "N/A",
             "slope": "N/A",
             "intercept": "N/A"
+            "graph_dates": [],
+            "graph_percentages": [],
+            "regression_percentages": []
         }
+
+    # prepares trajectory graph data
+    graph_dates, graph_percentages, regression_percentages = prepare_graph_data(regression_assessments,
+                                                                                reference_date,
+                                                                                slope,
+                                                                                intercept)
 
     # time from reference to 60 days after latest assessment 
     prediction_time = days_between(reference_date, latest_assessment_date) + 60
@@ -603,7 +612,10 @@ def analyse_subject(assessments, total_topics, boundaries):
         "predicted_grade": predicted_grade,
         "uncertainty_range": uncertainty_range,
         "slope": slope,
-        "intercept": intercept
+        "intercept": intercept,
+        "graph_dates": graph_dates,
+        "graph_percentages": graph_percentages,
+        "regression_percentages": regression_percentages
     }
 
 # Calculates overall stats and pg
@@ -628,3 +640,25 @@ def analyse_overall(subject_means, predicted_grades):
         "predicted_grade": overall_predicted,
         "uncertainty_range": uncertainty_range
     }
+
+# prepares data to display subject trajectory graph
+def prepare_graph_data(regression_assessments, reference_date,
+                       slope, intercept):
+
+    graph_dates = []
+    graph_percentages = []
+    regression_percentages = []
+
+    for assessment in regression_assessments:
+        assessment_time = days_between(reference_date, assessment["assessment_date"])
+
+        regression_percentage = slope * assessment_time + intercept
+
+        # limits percentage between 0 and 100
+        regression_percentage = max(0, min(100, regression_percentage))
+
+        graph_dates.append(assessment["assessment_date"])
+        graph_percentages.append(assessment["score_percentage"])
+        regression_percentages.append(regression_percentage)
+
+    return graph_dates, graph_percentages, regression_percentages
