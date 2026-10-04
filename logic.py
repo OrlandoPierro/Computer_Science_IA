@@ -481,7 +481,7 @@ def minimum_required_percentage(existing_assessments, proposed_assessment,
 # Analysis (returns full info breakdown directly)
 
 # *for a specific subject
-def analyse_subject(assessments, total_topics, boundaries, prediction_date):
+def analyse_subject(assessments, total_topics, boundaries):
 
     # returns N/A values if no assessments
     if len(assessments) == 0:
@@ -542,10 +542,8 @@ def analyse_subject(assessments, total_topics, boundaries, prediction_date):
             "intercept": "N/A"
         }
 
-    prediction_time = days_between(reference_date, prediction_date)
-    
-    if prediction_time < 0:
-        raise ValueError("Prediction date is before first assessment")
+    # time from reference to 60 days after latest assessment 
+    prediction_time = days_between(reference_date, latest_assessment_date) + 60
 
     # calculates predicted percentage
     predicted_percentage = estimate_predicted_grade_score_percentage(
