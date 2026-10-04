@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, request, session, flash, url
 from werkzeug.security import generate_password_hash, check_password_hash
 from secrets import token_hex
 
-from logic import integer, number, days_between, percentage, analyse_subject, analyse_overall
+from logic import integer, number, days_between, percentage, analyse_subject, analyse_overall, calculate_advice
 from database import get_db
 
 app = Flask(__name__)
@@ -496,6 +496,66 @@ def get_boundaries(subject_id, exam_year, exam_session):
         boundaries[boundary["grade"]] = boundary["lower_boundary"]
 
     return boundaries
+
+# Calculates minimum future assessment score needed to reach target grade
+@app.route("/subject/<int:user_subject_id>/advice", methods=("POST",))
+def advice(user_subject_id):
+    if "user_id" not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    assessment_type = request.form.get("assessment_type", "")
+    assessment_date = request.form.get("assessment_date", "")
+    topics_covered_count = request.form.get("topics_covered_count", "")
+
+    # open db
+    connection = get_db()
+    cursor = connection.cursor()
+
+    # retrieves specific subject info
+    command = """SELECT user_subjects.subject_id,
+                        user_subjects.target_grade,
+                        subjects.total_topics
+                 FROM user_subjects JOIN subjects
+                    ON user_subjects.subject_id = subjects.subject_id
+                 WHERE user_subjects.user_subject_id=? AND user_subjects.user_id=?"""
+
+    cursor.execute(command, (user_subject_id, session["user_id"]))
+    subject = cursor.fetchone()
+
+    # checks if subject exists
+    if subject is None:
+        connection.close()
+        return jsonify({"error": "Invalid subject"}), 400
+
+    # retrieves assessments associated to subject
+    cursor.execute(
+        """SELECT * FROM assessments
+           WHERE user_subject_id=?
+           ORDER BY assessment_date""", (user_subject_id,))
+
+    assessments = cursor.fetchall()
+    connection.close()
+
+    proposed_assessment = {"assessment_type": assessment_type,
+                            "assessment_date": assessment_date,
+                            "topics_covered_count": topics_covered_count}
+
+    boundaries = get_boundaries(subject["subject_id"], 2025, "May")
+
+    # calculates advice
+    try:
+        required_percentage = calculate_advice(
+            assessments,
+            proposed_assessment,
+            subject["total_topics"],
+            subject["target_grade"],
+            boundaries
+        )
+
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 400
+
+    return jsonify({"required_percentage": required_percentage})
 
 if __name__ == "__main__":
     app.run(debug=True)
