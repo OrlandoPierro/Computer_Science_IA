@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, request, session, flash, url_for, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from secrets import token_hex
+from datetime import date
 
 from logic import integer, number, days_between, percentage, analyse_subject, analyse_overall, calculate_advice
 from database import get_db
@@ -350,7 +351,15 @@ def load_assessments(user_subject_id):
     # calculates subject stats and prediction
     analysis = analyse_subject(assessments, subject["total_topics"], boundaries)
 
-    return render_template("subject.html", subject=subject, assessments=assessments, analysis=analysis)
+    today = date.today().isoformat()
+
+    if assessments:
+        latest_date = assessments[-1]["assessment_date"]
+        earliest_advice_date = max(today, latest_date)
+    else:
+        earliest_advice_date = today
+
+    return render_template("subject.html", subject=subject, assessments=assessments, analysis=analysis, today=today, earliest_advice_date=earliest_advice_date)
 
 # allows users to add an assessment for a subject
 @app.route("/subject/<int:user_subject_id>/add_assessment",methods=("POST",))
@@ -407,11 +416,16 @@ def add_assessments(user_subject_id):
 
         topics_covered_count = integer(topics_covered_count)
 
-        days_between(assessment_date, assessment_date)
+        parsed_assessment_date = date.fromisoformat(assessment_date)
 
     except ValueError as error:
         connection.close()
         flash(str(error))
+        return redirect(url_for("load_assessments", user_subject_id=user_subject_id))
+
+    if parsed_assessment_date > date.today():
+        connection.close()
+        flash("Completed assessments can't have a future date")
         return redirect(url_for("load_assessments", user_subject_id=user_subject_id))
 
     if topics_covered_count < 0 or topics_covered_count > subject["total_topics"]:

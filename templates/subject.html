@@ -41,9 +41,9 @@
       </details>
     </div>
     <section class="card advice-card" aria-labelledby="advice-title">
-      <p class="eyebrow">LOOKING AHEAD</p><h2 id="advice-title">Reach your target</h2><p class="text-secondary">Find the minimum score needed on your next assessment for a predicted grade of <strong>{{ subject['target_grade'] }}</strong>.</p>
+      <h2 id="advice-title">Reach your target</h2><p class="text-secondary">Find the minimum score needed on your next assessment for a predicted grade of <strong>{{ subject['target_grade'] }}</strong>.</p>
       <form id="advice-form" method="post" action="{{ url_for('advice', user_subject_id=subject['user_subject_id']) }}">
-        {{ assessment_fields('advice', subject['total_topics'], assessments[-1]['assessment_date'] if assessments else none) }}
+        {{ assessment_fields('advice', subject['total_topics'], earliest_advice_date) }}
         <button type="submit" class="btn btn-primary w-100" {% if not assessments %}disabled{% endif %}>Calculate required score</button>
       </form>
       <div id="advice-result" class="advice-result" role="status" aria-live="polite" aria-atomic="true">{% if not assessments %}Add a completed assessment first to calculate advice.{% else %}Your required score will appear here.{% endif %}</div>
@@ -71,7 +71,7 @@
   <form id="assessment-form" action="{{ url_for('add_assessments', user_subject_id=subject['user_subject_id']) }}" method="post">
     <div class="modal-body">
       <div class="row g-3 mb-3"><div class="col-6"><label class="form-label" for="score">Score</label><input class="form-control" id="score" name="score" type="number" min="0" step="any" required></div><div class="col-6"><label class="form-label" for="maximum-score">Out of</label><input class="form-control" id="maximum-score" name="maximum_score" type="number" min="0" step="any" required></div></div>
-      {{ assessment_fields('assessment', subject['total_topics']) }}
+      {{ assessment_fields('assessment', subject['total_topics'], today=today) }}
     </div>
     <div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" type="submit">Add assessment</button></div>
   </form>
