@@ -113,7 +113,7 @@ def register():
         # password hashing
         password_hash = generate_password_hash(password)
         
-        # The username doesn't exist in the database, can be inserted
+        # As the username doesn't exist in the database, can be inserted
         cursor.execute('INSERT INTO users (username, password_hash) VALUES (?, ?)', (username, password_hash))
         connection.commit()
         connection.close()

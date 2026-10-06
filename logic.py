@@ -229,6 +229,8 @@ def weighted_regression(times, score_percentages, weights):
     numerator = 0
     denominator = 0
 
+    # Calculates numerator = weighted covariance of time and score
+    # and        denominator = weighted variance of time 
     for i in range(len(times)):
         time_difference = times[i] - mean_time
         score_percentage_difference = score_percentages[i] - mean_score_percentage
@@ -236,9 +238,12 @@ def weighted_regression(times, score_percentages, weights):
         numerator += weights[i] * time_difference * score_percentage_difference
         denominator += weights[i] * time_difference ** 2
 
+    # When denominator=0 it means there is no variation in assessment times,
+    # thus a regression slope cannot be calculated
     if denominator == 0:
         raise ValueError("Insufficient time variation to calculate a trend")
 
+    # Closed-form weighted least-squares slope and intercept
     slope = numerator / denominator
     intercept = mean_score_percentage - slope * mean_time
 
